@@ -6,6 +6,7 @@
 * 2018/3/28
 */
 
+//vs使用此宏定义后可以使用gets, freopen等
 #define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <cstdlib>
@@ -114,54 +115,38 @@ void preprocess(char *input, char *output) {
 }
 
 /*
-关键字，标识符，整数，实数编码
-#include    0
-main        1
-if          2
-then        3
-while       4
-do          5
-static      6
-int         7
-double      8
-struct      9
-break      10
-else       11
-long       12
-switch     13
-case       14
-typedef    15
-char       16
-return     17
-const      18
-float      19
-short      20
-continue   21
-for        22
-void       23
-sizeof     24
-default    25
-ID         27
-integer    28
-real       29
-+          30
--          31
-*          32
-/          33
-:          34
-==         35
-<          36
-!=         37
-<=         38
->          39
->=         40
-=          41
-;          42
-(          43
-)          44
+关键字，标识符，整数，实数种别码
+#include	0			default		26
+#define		1			ID			27
+main		2			integer		28
+if			3			real		29
+then		4			+			30
+while		5			+=			31
+do			6			++			32
+static		7			-			33
+int			8			--			34
+double		9			-=			35
+struct		10			*			36
+break		11			*=			37
+else		12			/			38
+long		13			/=			39
+switch		14			:			40
+case		15			==			41
+typedef		16			< 			42
+char		17			!=			43
+return		18			<= 			44
+const		19			>			45
+float		20			>=			46
+short		21			=			47
+continue	22			;			48
+for			23			(			49
+void		24			)			50
+sizeof		25			
+
 */
 
 int main() {
+	//输入输出重定向
 	freopen("data.in", "r", stdin);
 	freopen("data.out", "w+", stdout);
 	char *input = (char *)malloc(maxn);
