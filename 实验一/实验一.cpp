@@ -65,37 +65,41 @@
 #define realev$ 51
 #define undefinedv$ 52
 #define stringv$ 53
+#define characterv$ 54
+#define leftbracev$ 55
+#define rightbracev$ 56
 
 /*
 关键字，标识符，整数，实数种别码
-#include	0	       	integer		28
-#define		1	       	real	    29
-main		2	       	+			30
-if		    3	       	+=			31
-then		4	       	++			32
-while		5	       	-			33
-do			6	       	--			34
-static		7	       	-=			35
-int		    8	       	*			36
-double		9	       	*=			37
-struct		10	       	/			38
-break		11	       	/=			39
-else		12	       	:			40
-long		13	       	==			41
-switch		14	       	<			42
-case		15	       	!=			43
-typedef		16	       	<=			44
-char		17	       	>			45
-return		18	       	>=			46
-const		19	       	=			47
-float		20	       	;			48
-short		21	       	(			49
-continue    22	       	)			50
-for			23	       	reale		51
-void		24	       	undefined   52
-sizeof		25			string		53
-default		26			character	55
-ID			27
+#include	0	       	real	    29
+#define		1	       	+			30
+main		2	       	+=			31
+if		    3	       	++			32
+then		4	       	-			33
+while		5	       	--			34
+do			6	       	-=			35
+static		7	       	*			36
+int		    8	       	*=			37
+double		9	       	/			38
+struct		10	       	/=			39
+break		11	       	:			40
+else		12	       	==			41
+long		13	       	<			42
+switch		14	       	!=			43
+case		15	       	<=			44
+typedef		16	       	>			45
+char		17	       	>=			46
+return		18	       	=			47
+const		19	       	;			48
+float		20	       	(			49
+short		21	       	)			50
+continue    22	       	reale		51
+for			23	       	undefined   52
+void		24	       	string		53
+sizeof		25			character	54
+default		26			{           55
+ID			27          }           56
+integer		28          
 */
 
 #include <cstdio>
@@ -113,7 +117,8 @@ const char *codeToStr[] = {"#include","#define", "main", "if", "then", "while", 
 "break", "else", "long", "switch", "case", "typedef", "char", "return", "const", "float", "short", "continue", "for", 
 "void", "sizeof", "default", "identifier", "integer", "real", "add", "addequal", "addadd", "sub", "subsub", "subequal", 
 "multiple", "multipleequal", "divide", "divideequal", "colon", "equal", "less", "notequal", "lessequal", "greater", 
-"greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string"};
+"greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string",
+"character", "leftbrace", "rightbrace"};
 
 /*存放(单词，种别码)的二元组*/
 struct wordTuple {
@@ -130,22 +135,6 @@ struct wordTuple {
 	}
 	//输出这个二元组
     void printWord() {
-        getTypeCode();
-        printf("word: %s", word);
-        for (int i = 0; i < 26 - len; i++) printf(" ");
-        printf("\t typeCode: %3d\t", typeCode);
-        if (typeCode == integerv$)
-            puts("整数");
-        else if (typeCode == realv$)
-            puts("实数");
-        else if (typeCode == realev$)
-            puts("科学计数法");
-        else if (typeCode == IDv$)
-            puts("标识符");
-        else puts("");
-    }
-	//识别关键字的种别码
-    void getTypeCode() {
         if (typeCode == IDv$) {
             for (int i = 2; i <= 26; i++) {
                 if (strcmp(word, codeToStr[i]) == 0) {
@@ -154,6 +143,13 @@ struct wordTuple {
                 }
             }
         }
+        printf("word: %s", word);
+        for (int i = 0; i < 26 - len; i++) printf(" ");
+        printf("\t typeCode: %3d\t", typeCode);
+        if (typeCode >= 27)
+            puts(codeToStr[typeCode]);
+        else
+            puts("key word");
     }
 };
 
@@ -187,7 +183,7 @@ void preprocess(char *input, char *output) {
             continue;
         }
         //a " character appeared
-        if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '\"' && i - 1 > 0 && input[i - 1] != '\\' && input[i - 1] != '\'') {
+        if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\' && input[i - 1] != '\'') {
             stringGot = true;
             spaceGot = false;
             output[j] = tmpch;
@@ -237,7 +233,7 @@ void preprocess(char *input, char *output) {
             continue;
         }
         //now the string is going to end
-        if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '\"' && i - 1 > 0 && input[i - 1] != '\\'  && input[i - 1] != '\'') {
+        if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\'  && input[i - 1] != '\'') {
             stringGot = false;
             output[j] = tmpch;
             j++;
@@ -253,15 +249,27 @@ void preprocess(char *input, char *output) {
     output[j] = 0;
 }
 
+/*
+是否是小写字母
+*/
 bool islower(char ch) {
 	return ch >= 'a' && ch <= 'z';
 }
+/*
+是否是大写字母
+*/
 bool isupper(char ch) {
 	return ch >= 'A' && ch <= 'Z';
 }
+/*
+是否是数字
+*/
 bool isdigit(char ch) {
 	return ch >= '0' && ch <= '9';
 }
+/*
+出错，输出错误，终止程序
+*/
 void errorExit() {
 	printf("Error");
 	exit(0);
@@ -350,7 +358,20 @@ int wordParse(char *input, wordTuple *output) {
 		//字符
 		if (ch == '\'') {
 			if (i + 1 < len) {
-
+                char tmpch = input[i + 1];
+                if (tmpch == '\\' && +3 < len && input[i + 3] == '\'') {
+                    output[j++].setWrod(input + i, 4, characterv$);
+                    i = i + 4;
+                    continue;
+                }
+                else if (tmpch >= 20 && tmpch <= 126 && input[i + 2] == '\'') {
+                    output[j++].setWrod(input + i, 3, characterv$);
+                    i = i + 3;
+                    continue;
+                }
+                else {
+                    errorExit();
+                }
 			}
 			else {
 				errorExit();
@@ -358,7 +379,24 @@ int wordParse(char *input, wordTuple *output) {
 		}
 		//字符串
 		if (ch == '"') {
-
+            if (i + 1 < len) {
+                int k = i + 1;
+                char tmpch = input[k];
+                while (tmpch != '"') {
+                    k++;
+                    if (tmpch == '\\')
+                        k++;
+                    if (k >= len)
+                        errorExit();
+                    tmpch = input[k];
+                }
+                output[j++].setWrod(input + i, k - i + 1, stringv$);
+                i = k + 1;
+                continue;
+            }
+            else {
+                errorExit();
+            }
 		}
         //宏定义#define和头文件包含#include
 		if (ch == '#') {
@@ -374,7 +412,139 @@ int wordParse(char *input, wordTuple *output) {
 				errorExit();
             }
         }
-
+        //+ ++ +=
+        if (ch == '+') {
+            if (i + 1 < len && (input[i + 1] == '+' || input[i + 1] == '=')) {
+                if (input[i + 1] == '+')
+                    output[j++].setWrod(input + i, 2, addaddv$);
+                else 
+                    output[j++].setWrod(input + i, 2, addequalv$);
+                i = i + 2;
+                continue;
+            }
+            else {
+                output[j++].setWrod(input + i, 1, addv$);
+                i++;
+                continue;
+            }
+        }
+        //- -- -=
+        if (ch == '-') {
+            if (i + 1 < len && (input[i + 1] == '-' || input[i + 1] == '=')) {
+                if (input[i + 1] == '-')
+                    output[j++].setWrod(input + i, 2, subsubv$);
+                else
+                    output[j++].setWrod(input + i, 2, subequalv$);
+                i += 2;
+                continue;
+            }
+            else {
+                output[j++].setWrod(input + i, 1, subv$);
+                i++;
+                continue;
+            }
+        }
+        //* *=
+        if (ch == '*') {
+            if (i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, multipleequalv$);
+                i += 2;
+                continue;
+            }
+            else {
+                output[j++].setWrod(input + i, 1, multiplev$);
+                i++;
+                continue;
+            }
+        }
+        // / /=
+        if (ch == '/') {
+            if (i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, divideequalv$);
+                i += 2;
+                continue;
+            }
+            else {
+                output[j++].setWrod(input + i, 1, dividev$);
+                i++;
+                continue;
+            }
+        }
+        // :
+        if (ch == ':') {
+            output[j++].setWrod(input + i, 1, colonv$);
+            i++;
+            continue;
+        }
+        // = ==
+        if (ch == '=') {
+            if (i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, equalv$);
+                i += 2;
+                continue;
+            }
+            output[j++].setWrod(input + i, 1, assign$);
+            i++;
+            continue;
+        }
+        // < <=
+        if (ch == '<') {
+            if (i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, lessequalv$);
+                i += 2;
+                continue;
+            }
+            output[j++].setWrod(input + i, 1, lessv$);
+            i++;
+            continue;
+        }
+        // > >=
+        if (ch == '>') {
+            if (i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, greaterequalv$);
+                i += 2;
+                continue;
+            }
+            output[j++].setWrod(input + i, 1, greaterv$);
+            i++;
+            continue;
+        }
+        // !=
+        if (ch == '!' && i + 1 < len && input[i + 1] == '=') {
+            output[j++].setWrod(input + i, 2, notequalv$);
+            i += 2;
+            continue;
+        }
+        // ;
+        if (ch == ';') {
+            output[j++].setWrod(input + i, 1, semicolonv$);
+            i++;
+            continue;
+        }
+        // (
+        if (ch == '(') {
+            output[j++].setWrod(input + i, 1, leftbracketv$);
+            i++;
+            continue;
+        }
+        // )
+        if (ch == ')') {
+            output[j++].setWrod(input + i, 1, rightbracketv$);
+            i++;
+            continue;
+        }
+        // {
+        if (ch == '{') {
+            output[j++].setWrod(input + i, 1, leftbracev$);
+            i++;
+            continue;
+        }
+        // }
+        if (ch == '}') {
+            output[j++].setWrod(input + i, 1, rightbracev$);
+            i++;
+            continue;
+        }
 		i++;
     }
     return j;
