@@ -7,7 +7,6 @@
 申敬飞
 2018/3/28
 */
-
  
 /*
 预定义单词种别码
@@ -69,36 +68,35 @@
 
 /*
 关键字，标识符，整数，实数种别码
-#include	0	       	ID			27
-#define		1	       	integer		28
-main		2	       	real	    29
-if		    3	       	+			30
-then		4	       	+=			31
-while		5	       	++			32
-do			6	       	-			33
-static		7	       	--			34
-int		    8	       	-=			35
-double		9	       	*			36
-struct		10	       	*=			37
-break		11	       	/			38
-else		12	       	/=			39
-long		13	       	:			40
-switch		14	       	==			41
-case		15	       	<			42
-typedef		16	       	!=			43
-char		17	       	<=			44
-return		18	       	>			45
-const		19	       	>=			46
-float		20	       	=			47
-short		21	       	;			48
-continue    22	       	(			49
-for			23	       	)			50
-void		24	       	reale		51
-sizeof		25			undefined   52
-default		26			string		53
+#include	0	       	integer		28
+#define		1	       	real	    29
+main		2	       	+			30
+if		    3	       	+=			31
+then		4	       	++			32
+while		5	       	-			33
+do			6	       	--			34
+static		7	       	-=			35
+int		    8	       	*			36
+double		9	       	*=			37
+struct		10	       	/			38
+break		11	       	/=			39
+else		12	       	:			40
+long		13	       	==			41
+switch		14	       	<			42
+case		15	       	!=			43
+typedef		16	       	<=			44
+char		17	       	>			45
+return		18	       	>=			46
+const		19	       	=			47
+float		20	       	;			48
+short		21	       	(			49
+continue    22	       	)			50
+for			23	       	reale		51
+void		24	       	undefined   52
+sizeof		25			string		53
+default		26			character	55
+ID			27
 */
-
-#define errorinfo printf("Error"); exit(-1);
 
 #include <cstdio>
 #include <cstdlib>
@@ -106,27 +104,31 @@ default		26			string		53
 #include <cstring>
 #include <cmath>
 #include <Windows.h>
-#include <ctype.h>
 
 using namespace std;
 
 /*待处理串最大长度*/
 const int maxn = 1e5 + 5;
-const char *codeToStr[] = {"#include", "#define", "main", "if", "then", "while", "do", "static", "int", "double", "struct", "break", "else", "long", "switch", "case", "typedef", "char", "return", "const", "float", "short", "continue", "for", "void", "sizeof", "default", "identifier", "integer", "real", "add", "addequal", "addadd", "sub", "subsub", "subequal", "multiple", "multipleequal", "divide", "divideequal", "colon", "equal", "less", "notequal", "lessequal", "greater", "greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string"};
+const char *codeToStr[] = {"#include","#define", "main", "if", "then", "while", "do", "static", "int", "double", "struct", 
+"break", "else", "long", "switch", "case", "typedef", "char", "return", "const", "float", "short", "continue", "for", 
+"void", "sizeof", "default", "identifier", "integer", "real", "add", "addequal", "addadd", "sub", "subsub", "subequal", 
+"multiple", "multipleequal", "divide", "divideequal", "colon", "equal", "less", "notequal", "lessequal", "greater", 
+"greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string"};
 
 /*存放(单词，种别码)的二元组*/
 struct wordTuple {
     char *word;
     int len;
     int typeCode;
-    void setWrod(char *source, int sz, int tc) {
-        len = sz + 3;
-        word = (char *)malloc(len);
+	void setWrod(char *source, int sz, int tc) {
+		len = sz + 3;
+		word = (char *)malloc(len);
 		memset(word, 0, sizeof(word));
-        strncpy(word, source, sz);
+		strncpy(word, source, sz);
 		word[sz] = 0;
-        typeCode = tc;
-    }
+		typeCode = tc;
+	}
+	//输出这个二元组
     void printWord() {
         getTypeCode();
         printf("word: %s", word);
@@ -142,6 +144,7 @@ struct wordTuple {
             puts("标识符");
         else puts("");
     }
+	//识别关键字的种别码
     void getTypeCode() {
         if (typeCode == IDv$) {
             for (int i = 2; i <= 26; i++) {
@@ -184,7 +187,7 @@ void preprocess(char *input, char *output) {
             continue;
         }
         //a " character appeared
-        if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '\"') {
+        if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '\"' && i - 1 > 0 && input[i - 1] != '\\' && input[i - 1] != '\'') {
             stringGot = true;
             spaceGot = false;
             output[j] = tmpch;
@@ -234,7 +237,7 @@ void preprocess(char *input, char *output) {
             continue;
         }
         //now the string is going to end
-        if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '\"') {
+        if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '\"' && i - 1 > 0 && input[i - 1] != '\\'  && input[i - 1] != '\'') {
             stringGot = false;
             output[j] = tmpch;
             j++;
@@ -248,6 +251,20 @@ void preprocess(char *input, char *output) {
         spaceGot = blockCommentGot = lineCommentGot = false;
     }
     output[j] = 0;
+}
+
+bool islower(char ch) {
+	return ch >= 'a' && ch <= 'z';
+}
+bool isupper(char ch) {
+	return ch >= 'A' && ch <= 'Z';
+}
+bool isdigit(char ch) {
+	return ch >= '0' && ch <= '9';
+}
+void errorExit() {
+	printf("Error");
+	exit(0);
 }
 
 /*
@@ -296,7 +313,7 @@ int wordParse(char *input, wordTuple *output) {
                         continue;
                     }
                     else {
-                        errorinfo
+						errorExit();
                     }
                 }
                 //确定是实数
@@ -320,7 +337,7 @@ int wordParse(char *input, wordTuple *output) {
                 }
                 //错误
                 else {
-                    errorinfo
+					errorExit();
                 }
             }
             //是整数
@@ -330,7 +347,21 @@ int wordParse(char *input, wordTuple *output) {
                 continue;
             }
         }
-        if (ch == '#') {
+		//字符
+		if (ch == '\'') {
+			if (i + 1 < len) {
+
+			}
+			else {
+				errorExit();
+			}
+		}
+		//字符串
+		if (ch == '"') {
+
+		}
+        //宏定义#define和头文件包含#include
+		if (ch == '#') {
             if (i + 7 < len && strncmp(input + i, codeToStr[0], 8) == 0) {
                 output[j++].setWrod(input + i, 8, includev$);
                 i = i + 8;
@@ -340,9 +371,10 @@ int wordParse(char *input, wordTuple *output) {
                 i = i + 7;
             }
             else {
-                errorinfo
+				errorExit();
             }
         }
+
 		i++;
     }
     return j;
