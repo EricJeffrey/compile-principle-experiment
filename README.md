@@ -1,3 +1,3 @@
 # compile-principle-experiment
 编译原理实验代码
-欢迎start
+欢迎star
