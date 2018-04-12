@@ -550,36 +550,36 @@ int wordParse(char *input, wordTuple *output) {
     return j;
 }
 
-int main() {
-    //输入输出重定向
-	freopen("data.out", "w+", stdout);
-	freopen("data.in", "r", stdin);
-
-    char *sourceCodeInput = (char *)malloc(maxn);
-    char *preprocessOutput = (char *)malloc(maxn);
-    memset(preprocessOutput, 0, maxn);
-    memset(sourceCodeInput, 0, maxn);
-
-	//读入源代码
-    for (int i = 0; scanf("%c", sourceCodeInput + i) != EOF; i++)
-        ;
-	//预处理
-    preprocess(sourceCodeInput, preprocessOutput);
-
-	//输出预处理后的结果
-    for (int i = 0; i < (int)strlen(preprocessOutput); i++) {
-        printf("%c", preprocessOutput[i]);
-    }
-	puts("");
-
-	//解析词法
-	wordTuple *wordParseOutput = (wordTuple *)malloc(sizeof(wordTuple) * maxn);
-	int wordsLen = wordParse(preprocessOutput, wordParseOutput);
-
-	//输出词法分析后的结果
-	for (int i = 0; i < wordsLen; i++) {
-		wordParseOutput[i].printWord();
-	}
-
-    return 0;
-}
+//int main() {
+//    //输入输出重定向
+//	freopen("data.out", "w+", stdout);
+//	freopen("data.in", "r", stdin);
+//
+//    char *sourceCodeInput = (char *)malloc(maxn);
+//    char *preprocessOutput = (char *)malloc(maxn);
+//    memset(preprocessOutput, 0, maxn);
+//    memset(sourceCodeInput, 0, maxn);
+//
+//	//读入源代码
+//    for (int i = 0; scanf("%c", sourceCodeInput + i) != EOF; i++)
+//        ;
+//	//预处理
+//    preprocess(sourceCodeInput, preprocessOutput);
+//
+//	//输出预处理后的结果
+//    for (int i = 0; i < (int)strlen(preprocessOutput); i++) {
+//        printf("%c", preprocessOutput[i]);
+//    }
+//	puts("");
+//
+//	//解析词法
+//	wordTuple *wordParseOutput = (wordTuple *)malloc(sizeof(wordTuple) * maxn);
+//	int wordsLen = wordParse(preprocessOutput, wordParseOutput);
+//
+//	//输出词法分析后的结果
+//	for (int i = 0; i < wordsLen; i++) {
+//		wordParseOutput[i].printWord();
+//	}
+//
+//    return 0;
+//}
