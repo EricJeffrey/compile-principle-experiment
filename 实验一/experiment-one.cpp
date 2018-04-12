@@ -6,6 +6,10 @@
 
 申敬飞
 2018/3/28
+
+存在的bug:
+	1e-6无法识别
+	无法识别包含的头文件（但能够判断#include以及#define)
 */
  
 /*
@@ -270,8 +274,9 @@ bool isdigit(char ch) {
 /*
 出错，输出错误，终止程序
 */
-void errorExit() {
+void errorExit(const char *errorinfo) {
 	printf("Error");
+	puts(errorinfo);
 	exit(0);
 }
 
@@ -321,7 +326,7 @@ int wordParse(char *input, wordTuple *output) {
                         continue;
                     }
                     else {
-						errorExit();
+						errorExit("科学计数法至少应当有一个指数位");
                     }
                 }
                 //确定是实数
@@ -345,7 +350,7 @@ int wordParse(char *input, wordTuple *output) {
                 }
                 //错误
                 else {
-					errorExit();
+					errorExit("科学计数法至少应当有一个指数位");
                 }
             }
             //是整数
@@ -370,11 +375,11 @@ int wordParse(char *input, wordTuple *output) {
                     continue;
                 }
                 else {
-                    errorExit();
+                    errorExit("不可显示字符或无字符结束符");
                 }
 			}
 			else {
-				errorExit();
+				errorExit("无字符结束符");
 			}
 		}
 		//字符串
@@ -387,7 +392,7 @@ int wordParse(char *input, wordTuple *output) {
                     if (tmpch == '\\')
                         k++;
                     if (k >= len)
-                        errorExit();
+                        errorExit("无字符串结束符");
                     tmpch = input[k];
                 }
                 output[j++].setWrod(input + i, k - i + 1, stringv$);
@@ -395,21 +400,28 @@ int wordParse(char *input, wordTuple *output) {
                 continue;
             }
             else {
-                errorExit();
+                errorExit("无字符串结束符");
             }
 		}
         //宏定义#define和头文件包含#include
 		if (ch == '#') {
             if (i + 7 < len && strncmp(input + i, codeToStr[0], 8) == 0) {
                 output[j++].setWrod(input + i, 8, includev$);
-                i = i + 8;
+				int k = i;
+				while (input[k] != '>' && input[k] != 0 && input[k] != EOF)
+					k++;
+				if (k - i >= 23)
+					errorExit("头文件包含过长或缺少包含结束符>");
+				if (input[k] == '>')
+					k++;
+				i = k;
             }
             else if (i + 6 < len && strncmp(input + i, codeToStr[1], 7) == 0) {
                 output[j++].setWrod(input + i, 7, definev$);
                 i = i + 7;
             }
             else {
-				errorExit();
+				errorExit("不是宏定义也不是头文件包含");
             }
         }
         //+ ++ +=
