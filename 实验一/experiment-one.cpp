@@ -157,441 +157,445 @@ struct wordTuple {
     }
 };
 
-/*
-预处理，删除多余的空格，换行，回车，制表符，注释
+struct wordAnalyzer {
 
-spaceGot：已经遇到过一个“空格类字符”，接下来的所有“空格类”字符都会被忽略
-lineCommentGot：已经遇到了“//”，接下来的字符都会被忽略，直到遇到回车字符
-blockCommentGot：已经遇到了“/*”，接下来的字符都会被忽略，直到遇到“*#(去掉#)/”
-stringGot：应遇到了“"”，接下来的字符都会被忽略，直到遇到下一个“"”
+    wordAnalyzer() {
 
-当前处理字符位于
-1.字符串中时，忽略空格，注释的影响
-2.注释中时，忽略字符串，空格，另一种注释的影响
+        char *sourceCodeInput = (char *)malloc(maxn);
+        char *preprocessOutput = (char *)malloc(maxn);
+        memset(preprocessOutput, 0, maxn);
+        memset(sourceCodeInput, 0, maxn);
 
-input: 待处理的串，串最大长度由全局变量maxn指定
-output: 结果串存放位置，串最大长度由全局变量maxn指定
-*/
-void preprocess(char *input, char *output) {
-    int len = strlen(input);
-    int i = 0, j = 0;
-    bool spaceGot = false, lineCommentGot = false, blockCommentGot = false, stringGot = false;
-    while (i < len) {
-        char tmpch = input[i];
-        //a space like character appeared
-        if (!lineCommentGot && !blockCommentGot && !stringGot && !spaceGot && (tmpch == ' ' || tmpch == '\n' || tmpch == '\t' || tmpch == '\r')) {
-            spaceGot = true;
-            output[j] = ' ';
-            i++;
-            j++;
-            continue;
+        //读入源代码
+        for (int i = 0; scanf("%c", sourceCodeInput + i) != EOF; i++)
+            ;
+        //预处理
+        preprocess(sourceCodeInput, preprocessOutput);
+
+        //输出预处理后的结果
+        for (int i = 0; i < (int)strlen(preprocessOutput); i++) {
+            printf("%c", preprocessOutput[i]);
         }
-        //a " character appeared
-        if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\' && input[i - 1] != '\'') {
-            stringGot = true;
-            spaceGot = false;
-            output[j] = tmpch;
-            j++;
-            i++;
-            continue;
+        puts("");
+
+        //解析词法
+        wordTuple *wordParseOutput = (wordTuple *)malloc(sizeof(wordTuple) * maxn);
+        int wordsLen = wordParse(preprocessOutput, wordParseOutput);
+
+        //输出词法分析后的结果
+        for (int i = 0; i < wordsLen; i++) {
+            wordParseOutput[i].printWord();
         }
-        //a line comment appeared
-        if (!blockCommentGot && !stringGot && tmpch == '/' && i != len - 1 && input[i + 1] == '/') {
-            i += 2;
-            lineCommentGot = true;
-            spaceGot = false;
-            continue;
-        }
-        //a block comment appeared
-        if (!lineCommentGot && !stringGot && tmpch == '/' && i != len - 1 && input[i + 1] == '*') {
-            i += 2;
-            blockCommentGot = true;
-            spaceGot = false;
-            continue;
-        }
-        //now a space like has appeared, ignore all of these character
-        if (!lineCommentGot && !blockCommentGot && !stringGot && spaceGot && (tmpch == ' ' || tmpch == '\n' || tmpch == '\t' || tmpch == '\r')) {
-            i++;
-            continue;
-        }
-        //now all these character is in a line comment
-        if (!blockCommentGot && !stringGot && lineCommentGot && tmpch != '\n') {
-            i++;
-            continue;
-        }
-        //now all these character is a block comment
-        if (!lineCommentGot && !stringGot && blockCommentGot && (tmpch != '*' || (i != len - 1 && input[i + 1] != '/'))) {
-            i++;
-            continue;
-        }
-        //now the line comment is going to end
-        if (!stringGot && !blockCommentGot && lineCommentGot && tmpch == '\n') {
-            i++;
-            lineCommentGot = false;
-            continue;
-        }
-        //now the block comment is going to end
-        if (!stringGot && !lineCommentGot && blockCommentGot && tmpch == '*' && i != len - 1 && input[i + 1] == '/') {
-            blockCommentGot = false;
-            i += 2;
-            continue;
-        }
-        //now the string is going to end
-        if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\'  && input[i - 1] != '\'') {
-            stringGot = false;
-            output[j] = tmpch;
-            j++;
-            i++;
-            continue;
-        }
-        //common character, just do it
-        output[j] = input[i];
-        i++;
-        j++;
-        spaceGot = blockCommentGot = lineCommentGot = false;
     }
-    output[j] = 0;
-}
+    /*
+    预处理，删除多余的空格，换行，回车，制表符，注释
 
-/*
-是否是小写字母
-*/
-bool islower(char ch) {
-	return ch >= 'a' && ch <= 'z';
-}
-/*
-是否是大写字母
-*/
-bool isupper(char ch) {
-	return ch >= 'A' && ch <= 'Z';
-}
-/*
-是否是数字
-*/
-bool isdigit(char ch) {
-	return ch >= '0' && ch <= '9';
-}
-/*
-出错，输出错误，终止程序
-*/
-void errorExit(const char *errorinfo) {
-	printf("Error");
-	puts(errorinfo);
-	exit(0);
-}
+    spaceGot：已经遇到过一个“空格类字符”，接下来的所有“空格类”字符都会被忽略
+    lineCommentGot：已经遇到了“//”，接下来的字符都会被忽略，直到遇到回车字符
+    blockCommentGot：已经遇到了“/*”，接下来的字符都会被忽略，直到遇到“*#(去掉#)/”
+    stringGot：应遇到了“"”，接下来的字符都会被忽略，直到遇到下一个“"”
 
-/*
-词法分析，将识别出的单词放入一个二元组数组中
+    当前处理字符位于
+    1.字符串中时，忽略空格，注释的影响
+    2.注释中时，忽略字符串，空格，另一种注释的影响
 
-input: 待处理代码串
-output: 分析结果存放位置
-*/
-int wordParse(char *input, wordTuple *output) {
-    int len = strlen(input), j = 0, i = 0;
-    while (i < len) {
-        char ch = input[i];
-		//标识符
-        if (islower(ch) || isupper(ch) || ch == '_') {
-            int k = i;
-            char tmpch = input[k];
-            while (islower(tmpch) || isupper(tmpch) || isdigit(tmpch) || tmpch == '_') {
-                tmpch = input[++k];
+    input: 待处理的串，串最大长度由全局变量maxn指定
+    output: 结果串存放位置，串最大长度由全局变量maxn指定
+    */
+    void preprocess(char *input, char *output) {
+        int len = strlen(input);
+        int i = 0, j = 0;
+        bool spaceGot = false, lineCommentGot = false, blockCommentGot = false, stringGot = false;
+        while (i < len) {
+            char tmpch = input[i];
+            //a space like character appeared
+            if (!lineCommentGot && !blockCommentGot && !stringGot && !spaceGot && (tmpch == ' ' || tmpch == '\n' || tmpch == '\t' || tmpch == '\r')) {
+                spaceGot = true;
+                output[j] = ' ';
+                i++;
+                j++;
+                continue;
             }
-            output[j++].setWrod(input + i, k - i, IDv$);
-            i = k;
-            continue;
+            //a " character appeared
+            if (!lineCommentGot && !blockCommentGot && !stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\' && input[i - 1] != '\'') {
+                stringGot = true;
+                spaceGot = false;
+                output[j] = tmpch;
+                j++;
+                i++;
+                continue;
+            }
+            //a line comment appeared
+            if (!blockCommentGot && !stringGot && tmpch == '/' && i != len - 1 && input[i + 1] == '/') {
+                i += 2;
+                lineCommentGot = true;
+                spaceGot = false;
+                continue;
+            }
+            //a block comment appeared
+            if (!lineCommentGot && !stringGot && tmpch == '/' && i != len - 1 && input[i + 1] == '*') {
+                i += 2;
+                blockCommentGot = true;
+                spaceGot = false;
+                continue;
+            }
+            //now a space like has appeared, ignore all of these character
+            if (!lineCommentGot && !blockCommentGot && !stringGot && spaceGot && (tmpch == ' ' || tmpch == '\n' || tmpch == '\t' || tmpch == '\r')) {
+                i++;
+                continue;
+            }
+            //now all these character is in a line comment
+            if (!blockCommentGot && !stringGot && lineCommentGot && tmpch != '\n') {
+                i++;
+                continue;
+            }
+            //now all these character is a block comment
+            if (!lineCommentGot && !stringGot && blockCommentGot && (tmpch != '*' || (i != len - 1 && input[i + 1] != '/'))) {
+                i++;
+                continue;
+            }
+            //now the line comment is going to end
+            if (!stringGot && !blockCommentGot && lineCommentGot && tmpch == '\n') {
+                i++;
+                lineCommentGot = false;
+                continue;
+            }
+            //now the block comment is going to end
+            if (!stringGot && !lineCommentGot && blockCommentGot && tmpch == '*' && i != len - 1 && input[i + 1] == '/') {
+                blockCommentGot = false;
+                i += 2;
+                continue;
+            }
+            //now the string is going to end
+            if (!lineCommentGot && !blockCommentGot && stringGot && tmpch == '"' && i - 1 > 0 && input[i - 1] != '\\'  && input[i - 1] != '\'') {
+                stringGot = false;
+                output[j] = tmpch;
+                j++;
+                i++;
+                continue;
+            }
+            //common character, just do it
+            output[j] = input[i];
+            i++;
+            j++;
+            spaceGot = blockCommentGot = lineCommentGot = false;
         }
-        //常数，包括整数和实数
-        if (isdigit(ch)) {
-            int k = i;
-            char tmpch = input[k];
-            while (isdigit(tmpch)) {
-                tmpch = input[++k];
+        output[j] = 0;
+    }
+
+    /*
+    是否是小写字母
+    */
+    bool islower(char ch) {
+        return ch >= 'a' && ch <= 'z';
+    }
+    /*
+    是否是大写字母
+    */
+    bool isupper(char ch) {
+        return ch >= 'A' && ch <= 'Z';
+    }
+    /*
+    是否是数字
+    */
+    bool isdigit(char ch) {
+        return ch >= '0' && ch <= '9';
+    }
+    /*
+    出错，输出错误，终止程序
+    */
+    void errorExit(const char *errorinfo) {
+        printf("Error");
+        puts(errorinfo);
+        exit(0);
+    }
+
+    /*
+    词法分析，将识别出的单词放入一个二元组数组中
+
+    input: 待处理代码串
+    output: 分析结果存放位置
+    */
+    int wordParse(char *input, wordTuple *output) {
+        int len = strlen(input), j = 0, i = 0;
+        while (i < len) {
+            char ch = input[i];
+            //标识符
+            if (islower(ch) || isupper(ch) || ch == '_') {
+                int k = i;
+                char tmpch = input[k];
+                while (islower(tmpch) || isupper(tmpch) || isdigit(tmpch) || tmpch == '_') {
+                    tmpch = input[++k];
+                }
+                output[j++].setWrod(input + i, k - i, IDv$);
+                i = k;
+                continue;
             }
-            //可能是实数
-            if (tmpch == '.') {
-                tmpch = input[++k];
+            //常数，包括整数和实数
+            if (isdigit(ch)) {
+                int k = i;
+                char tmpch = input[k];
                 while (isdigit(tmpch)) {
                     tmpch = input[++k];
                 }
-                //可能是科学计数法
-                if (tmpch == 'e' || tmpch == 'E') {
+                //可能是实数
+                if (tmpch == '.') {
                     tmpch = input[++k];
-                    if (isdigit(tmpch)) {
-                        while (isdigit(tmpch)) {
-                            tmpch = input[++k];
+                    while (isdigit(tmpch)) {
+                        tmpch = input[++k];
+                    }
+                    //可能是科学计数法
+                    if (tmpch == 'e' || tmpch == 'E') {
+                        tmpch = input[++k];
+                        if (isdigit(tmpch)) {
+                            while (isdigit(tmpch)) {
+                                tmpch = input[++k];
+                            }
+                            output[j++].setWrod(input + i, k - i, realv$);
+                            i = k;
+                            continue;
                         }
+                        else {
+                            errorExit("科学计数法至少应当有一个指数位");
+                        }
+                    }
+                    //确定是实数
+                    else {
                         output[j++].setWrod(input + i, k - i, realv$);
                         i = k;
                         continue;
                     }
+                }
+                //可能是科学计数法
+                else if (tmpch == 'e' || tmpch == 'E') {
+                    tmpch = input[++k];
+                    //科学计数法至少应有一个指数位
+                    if (isdigit(tmpch)) {
+                        while (isdigit(tmpch)) {
+                            tmpch = input[++k];
+                        }
+                        output[j++].setWrod(input + i, k - i, realev$);
+                        i = k;
+                        continue;
+                    }
+                    //错误
                     else {
-						errorExit("科学计数法至少应当有一个指数位");
+                        errorExit("科学计数法至少应当有一个指数位");
                     }
                 }
-                //确定是实数
+                //是整数
                 else {
-                    output[j++].setWrod(input + i, k - i, realv$);
+                    output[j++].setWrod(input + i, k - i, integerv$);
                     i = k;
                     continue;
                 }
             }
-            //可能是科学计数法
-            else if (tmpch == 'e' || tmpch == 'E') {
-                tmpch = input[++k];
-                //科学计数法至少应有一个指数位
-                if (isdigit(tmpch)) {
-                    while (isdigit(tmpch)) {
-                        tmpch = input[++k];
+            //字符
+            if (ch == '\'') {
+                if (i + 1 < len) {
+                    char tmpch = input[i + 1];
+                    if (tmpch == '\\' && +3 < len && input[i + 3] == '\'') {
+                        output[j++].setWrod(input + i, 4, characterv$);
+                        i = i + 4;
+                        continue;
                     }
-                    output[j++].setWrod(input + i, k - i, realev$);
-                    i = k;
-                    continue;
-                }
-                //错误
-                else {
-					errorExit("科学计数法至少应当有一个指数位");
-                }
-            }
-            //是整数
-            else {
-                output[j++].setWrod(input + i, k - i, integerv$);
-                i = k;
-                continue;
-            }
-        }
-		//字符
-		if (ch == '\'') {
-			if (i + 1 < len) {
-                char tmpch = input[i + 1];
-                if (tmpch == '\\' && +3 < len && input[i + 3] == '\'') {
-                    output[j++].setWrod(input + i, 4, characterv$);
-                    i = i + 4;
-                    continue;
-                }
-                else if (tmpch >= 20 && tmpch <= 126 && input[i + 2] == '\'') {
-                    output[j++].setWrod(input + i, 3, characterv$);
-                    i = i + 3;
-                    continue;
+                    else if (tmpch >= 20 && tmpch <= 126 && input[i + 2] == '\'') {
+                        output[j++].setWrod(input + i, 3, characterv$);
+                        i = i + 3;
+                        continue;
+                    }
+                    else {
+                        errorExit("不可显示字符或无字符结束符");
+                    }
                 }
                 else {
-                    errorExit("不可显示字符或无字符结束符");
+                    errorExit("无字符结束符");
                 }
-			}
-			else {
-				errorExit("无字符结束符");
-			}
-		}
-		//字符串
-		if (ch == '"') {
-            if (i + 1 < len) {
-                int k = i + 1;
-                char tmpch = input[k];
-                while (tmpch != '"') {
-                    k++;
-                    if (tmpch == '\\')
+            }
+            //字符串
+            if (ch == '"') {
+                if (i + 1 < len) {
+                    int k = i + 1;
+                    char tmpch = input[k];
+                    while (tmpch != '"') {
                         k++;
-                    if (k >= len)
-                        errorExit("无字符串结束符");
-                    tmpch = input[k];
+                        if (tmpch == '\\')
+                            k++;
+                        if (k >= len)
+                            errorExit("无字符串结束符");
+                        tmpch = input[k];
+                    }
+                    output[j++].setWrod(input + i, k - i + 1, stringv$);
+                    i = k + 1;
+                    continue;
                 }
-                output[j++].setWrod(input + i, k - i + 1, stringv$);
-                i = k + 1;
-                continue;
+                else {
+                    errorExit("无字符串结束符");
+                }
             }
-            else {
-                errorExit("无字符串结束符");
+            //宏定义#define和头文件包含#include
+            if (ch == '#') {
+                if (i + 7 < len && strncmp(input + i, codeToStr[0], 8) == 0) {
+                    output[j++].setWrod(input + i, 8, includev$);
+                    int k = i;
+                    while (input[k] != '>' && input[k] != 0 && input[k] != EOF)
+                        k++;
+                    if (k - i >= 23)
+                        errorExit("头文件包含过长或缺少包含结束符>");
+                    if (input[k] == '>')
+                        k++;
+                    i = k;
+                }
+                else if (i + 6 < len && strncmp(input + i, codeToStr[1], 7) == 0) {
+                    output[j++].setWrod(input + i, 7, definev$);
+                    i = i + 7;
+                }
+                else {
+                    errorExit("不是宏定义也不是头文件包含");
+                }
             }
-		}
-        //宏定义#define和头文件包含#include
-		if (ch == '#') {
-            if (i + 7 < len && strncmp(input + i, codeToStr[0], 8) == 0) {
-                output[j++].setWrod(input + i, 8, includev$);
-				int k = i;
-				while (input[k] != '>' && input[k] != 0 && input[k] != EOF)
-					k++;
-				if (k - i >= 23)
-					errorExit("头文件包含过长或缺少包含结束符>");
-				if (input[k] == '>')
-					k++;
-				i = k;
+            //+ ++ +=
+            if (ch == '+') {
+                if (i + 1 < len && (input[i + 1] == '+' || input[i + 1] == '=')) {
+                    if (input[i + 1] == '+')
+                        output[j++].setWrod(input + i, 2, addaddv$);
+                    else
+                        output[j++].setWrod(input + i, 2, addequalv$);
+                    i = i + 2;
+                    continue;
+                }
+                else {
+                    output[j++].setWrod(input + i, 1, addv$);
+                    i++;
+                    continue;
+                }
             }
-            else if (i + 6 < len && strncmp(input + i, codeToStr[1], 7) == 0) {
-                output[j++].setWrod(input + i, 7, definev$);
-                i = i + 7;
+            //- -- -=
+            if (ch == '-') {
+                if (i + 1 < len && (input[i + 1] == '-' || input[i + 1] == '=')) {
+                    if (input[i + 1] == '-')
+                        output[j++].setWrod(input + i, 2, subsubv$);
+                    else
+                        output[j++].setWrod(input + i, 2, subequalv$);
+                    i += 2;
+                    continue;
+                }
+                else {
+                    output[j++].setWrod(input + i, 1, subv$);
+                    i++;
+                    continue;
+                }
             }
-            else {
-				errorExit("不是宏定义也不是头文件包含");
+            //* *=
+            if (ch == '*') {
+                if (i + 1 < len && input[i + 1] == '=') {
+                    output[j++].setWrod(input + i, 2, multipleequalv$);
+                    i += 2;
+                    continue;
+                }
+                else {
+                    output[j++].setWrod(input + i, 1, multiplev$);
+                    i++;
+                    continue;
+                }
             }
-        }
-        //+ ++ +=
-        if (ch == '+') {
-            if (i + 1 < len && (input[i + 1] == '+' || input[i + 1] == '=')) {
-                if (input[i + 1] == '+')
-                    output[j++].setWrod(input + i, 2, addaddv$);
-                else 
-                    output[j++].setWrod(input + i, 2, addequalv$);
-                i = i + 2;
-                continue;
+            // / /=
+            if (ch == '/') {
+                if (i + 1 < len && input[i + 1] == '=') {
+                    output[j++].setWrod(input + i, 2, divideequalv$);
+                    i += 2;
+                    continue;
+                }
+                else {
+                    output[j++].setWrod(input + i, 1, dividev$);
+                    i++;
+                    continue;
+                }
             }
-            else {
-                output[j++].setWrod(input + i, 1, addv$);
+            // :
+            if (ch == ':') {
+                output[j++].setWrod(input + i, 1, colonv$);
                 i++;
                 continue;
             }
-        }
-        //- -- -=
-        if (ch == '-') {
-            if (i + 1 < len && (input[i + 1] == '-' || input[i + 1] == '=')) {
-                if (input[i + 1] == '-')
-                    output[j++].setWrod(input + i, 2, subsubv$);
-                else
-                    output[j++].setWrod(input + i, 2, subequalv$);
-                i += 2;
-                continue;
-            }
-            else {
-                output[j++].setWrod(input + i, 1, subv$);
+            // = ==
+            if (ch == '=') {
+                if (i + 1 < len && input[i + 1] == '=') {
+                    output[j++].setWrod(input + i, 2, equalv$);
+                    i += 2;
+                    continue;
+                }
+                output[j++].setWrod(input + i, 1, assign$);
                 i++;
                 continue;
             }
-        }
-        //* *=
-        if (ch == '*') {
-            if (i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, multipleequalv$);
-                i += 2;
-                continue;
-            }
-            else {
-                output[j++].setWrod(input + i, 1, multiplev$);
+            // < <=
+            if (ch == '<') {
+                if (i + 1 < len && input[i + 1] == '=') {
+                    output[j++].setWrod(input + i, 2, lessequalv$);
+                    i += 2;
+                    continue;
+                }
+                output[j++].setWrod(input + i, 1, lessv$);
                 i++;
                 continue;
             }
-        }
-        // / /=
-        if (ch == '/') {
-            if (i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, divideequalv$);
-                i += 2;
-                continue;
-            }
-            else {
-                output[j++].setWrod(input + i, 1, dividev$);
+            // > >=
+            if (ch == '>') {
+                if (i + 1 < len && input[i + 1] == '=') {
+                    output[j++].setWrod(input + i, 2, greaterequalv$);
+                    i += 2;
+                    continue;
+                }
+                output[j++].setWrod(input + i, 1, greaterv$);
                 i++;
                 continue;
             }
-        }
-        // :
-        if (ch == ':') {
-            output[j++].setWrod(input + i, 1, colonv$);
-            i++;
-            continue;
-        }
-        // = ==
-        if (ch == '=') {
-            if (i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, equalv$);
+            // !=
+            if (ch == '!' && i + 1 < len && input[i + 1] == '=') {
+                output[j++].setWrod(input + i, 2, notequalv$);
                 i += 2;
                 continue;
             }
-            output[j++].setWrod(input + i, 1, assign$);
-            i++;
-            continue;
-        }
-        // < <=
-        if (ch == '<') {
-            if (i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, lessequalv$);
-                i += 2;
+            // ;
+            if (ch == ';') {
+                output[j++].setWrod(input + i, 1, semicolonv$);
+                i++;
                 continue;
             }
-            output[j++].setWrod(input + i, 1, lessv$);
-            i++;
-            continue;
-        }
-        // > >=
-        if (ch == '>') {
-            if (i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, greaterequalv$);
-                i += 2;
+            // (
+            if (ch == '(') {
+                output[j++].setWrod(input + i, 1, leftbracketv$);
+                i++;
                 continue;
             }
-            output[j++].setWrod(input + i, 1, greaterv$);
+            // )
+            if (ch == ')') {
+                output[j++].setWrod(input + i, 1, rightbracketv$);
+                i++;
+                continue;
+            }
+            // {
+            if (ch == '{') {
+                output[j++].setWrod(input + i, 1, leftbracev$);
+                i++;
+                continue;
+            }
+            // }
+            if (ch == '}') {
+                output[j++].setWrod(input + i, 1, rightbracev$);
+                i++;
+                continue;
+            }
             i++;
-            continue;
         }
-        // !=
-        if (ch == '!' && i + 1 < len && input[i + 1] == '=') {
-            output[j++].setWrod(input + i, 2, notequalv$);
-            i += 2;
-            continue;
-        }
-        // ;
-        if (ch == ';') {
-            output[j++].setWrod(input + i, 1, semicolonv$);
-            i++;
-            continue;
-        }
-        // (
-        if (ch == '(') {
-            output[j++].setWrod(input + i, 1, leftbracketv$);
-            i++;
-            continue;
-        }
-        // )
-        if (ch == ')') {
-            output[j++].setWrod(input + i, 1, rightbracketv$);
-            i++;
-            continue;
-        }
-        // {
-        if (ch == '{') {
-            output[j++].setWrod(input + i, 1, leftbracev$);
-            i++;
-            continue;
-        }
-        // }
-        if (ch == '}') {
-            output[j++].setWrod(input + i, 1, rightbracev$);
-            i++;
-            continue;
-        }
-		i++;
+        return j;
     }
-    return j;
-}
+};
 
 //int main() {
 //    //输入输出重定向
-//	freopen("data.out", "w+", stdout);
-//	freopen("data.in", "r", stdin);
-//
-//    char *sourceCodeInput = (char *)malloc(maxn);
-//    char *preprocessOutput = (char *)malloc(maxn);
-//    memset(preprocessOutput, 0, maxn);
-//    memset(sourceCodeInput, 0, maxn);
-//
-//	//读入源代码
-//    for (int i = 0; scanf("%c", sourceCodeInput + i) != EOF; i++)
-//        ;
-//	//预处理
-//    preprocess(sourceCodeInput, preprocessOutput);
-//
-//	//输出预处理后的结果
-//    for (int i = 0; i < (int)strlen(preprocessOutput); i++) {
-//        printf("%c", preprocessOutput[i]);
-//    }
-//	puts("");
-//
-//	//解析词法
-//	wordTuple *wordParseOutput = (wordTuple *)malloc(sizeof(wordTuple) * maxn);
-//	int wordsLen = wordParse(preprocessOutput, wordParseOutput);
-//
-//	//输出词法分析后的结果
-//	for (int i = 0; i < wordsLen; i++) {
-//		wordParseOutput[i].printWord();
-//	}
-//
-//    return 0;
+//    freopen("exp-one-data.out.txt", "w+", stdout);
+//    freopen("exp-one-data.in.txt", "r", stdin);
+//    wordAnalyzer();
 //}

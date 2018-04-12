@@ -1,0 +1,5 @@
+S a
+S ^
+S (T)
+T SP
+P ,SP

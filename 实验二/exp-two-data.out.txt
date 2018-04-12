@@ -1,0 +1,16 @@
+production rule:
+S -> a
+S -> ^
+S -> (T)
+T -> SP
+P -> ,SP
+NonTerminal:
+P 80
+S 83
+T 84
+Terminal:
+( 40
+) 41
+, 44
+^ 94
+a 97
