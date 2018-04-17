@@ -4,8 +4,19 @@
 #include <cstring>
 #include <set>
 #include <vector>
+#include <map>
+
+#define epsilon $
+#define epsilon_char '$'
+#define endSymbol #
+#define endSymbol_char '#'
 
 using namespace std;
+
+void error(const char *s) {
+    printf("%s", s);
+    exit(-1);
+}
 
 /*
 产生式结构
@@ -26,22 +37,28 @@ struct ProductionRule {
     }
 };
 
-//TODO 输入文法，确定终结符与非终结符
+/*
+定义文法
+文法由非终结符，终结符，产生式组成
+产生式中的ε使用$代替
+*/
 struct Grammar {
-    int ruleMaxLen = 20;
+    int ruleMaxLen = 50;
     vector<ProductionRule> rules;
     set<char> terminal, nonTerminal;
-    vector<set<char>> firstSet, followSet;
+    map<char, set<char>> firstSet, followSet;
     int symbolNumber, ruleNumber;
 
     Grammar() {
         readRules();
+        generateFirst();
     }
     /*
+    确定终结符与非终结符
     将每个产生式的左部作为一个非终结符加入相应的集合中
     确定非终结符后，将每个非非终结符加入终结符集合中
     */
-    void init() {
+    void getTerminalAndNon() {
         for (int i = 0; i < (int)rules.size(); i++) {
             nonTerminal.insert(rules[i].leftPart);
         }
@@ -58,7 +75,7 @@ struct Grammar {
     从标准输入输出读取文法的产生式
 
     输入文法格式：left right
-    若产生式中有ε，请使用epsilon代替
+    若产生式中有ε，请使用$代替
     默认输入的文法为LL(1)文法
     */
     void readRules() {
@@ -68,7 +85,7 @@ struct Grammar {
         while (scanf(" %c %s", &tmpc, tmpstr) != EOF) {
             rules.push_back(ProductionRule(tmpc, tmpstr));
         }
-        init();
+        getTerminalAndNon();
     }
     /*
     输出产生式、终结符以及非终结符
@@ -81,21 +98,80 @@ struct Grammar {
         puts("NonTerminal:");
         set<char>::iterator it;
         for (it = nonTerminal.begin(); it != nonTerminal.end(); it++) {
-            printf("%c %d\n", *it, *it);
+            printf("%c\n", *it);
         }
         puts("Terminal:");
         for (it = terminal.begin(); it != terminal.end(); it++) {
-            printf("%c %d\n", *it, *it);
+            printf("%c\n", *it);
+        }
+        puts("FIRST:");
+        map<char, set<char>>::iterator fit;
+        for (fit = firstSet.begin(); fit != firstSet.end(); fit++) {
+            if (terminal.find(fit->first) != terminal.end())
+                continue;
+            printf("FIRST[%c]: ", fit->first);
+            for (it = fit->second.begin(); it != fit->second.end(); it++) {
+                printf(" %c", *it);
+            }
+            puts("");
         }
     }
     /*
-    产生first集
+    构造first集
     */
     void generateFirst() {
-
+        set<char>::iterator it;
+        //终结符：FIRST(X) = X
+        for (it = terminal.begin(); it != terminal.end(); it++) {
+            firstSet[*it].insert(*it);
+        }
+        int cursz = 0;
+        int lasz = -1;
+        while (cursz != lasz) {
+            lasz = cursz;
+            //对于每一个产生式进行判断
+            for (int i = 0; i < (int)rules.size(); i++) {
+                ProductionRule tmprule = rules[i];
+                char X = tmprule.leftPart;
+                char Y = tmprule.rightPart[0];
+                int ylen = tmprule.rPartLength;
+                //X->a... : FIRST[X] += a
+                if (terminal.find(Y) != terminal.end()) {
+                    firstSet[X].insert(Y);
+                    continue;
+                }
+                //X->Y... : FIRST[X] += FIRST[Y]
+                else if (nonTerminal.find(Y) != nonTerminal.end()) {
+                    firstSet[X].insert(firstSet[Y].begin(), firstSet[Y].end());
+                    //若epsilon属于FIRST[Y1...Yi-1]，则将FIRST[Yi]加入FIRST[X]中
+                    int j = 0;
+                    char cury = Y;
+                    while (j < ylen && firstSet[cury].find(epsilon_char) != firstSet[cury].end()) {
+                        //Y0...Yn -> epsilon，将epsilon加入FIRST[X]
+                        if (j == ylen - 1) {
+                            firstSet[X].insert(epsilon_char);
+                        }
+                        else {
+                            char nxty = tmprule.rightPart[j + 1];
+                            firstSet[X].insert(firstSet[nxty].begin(), firstSet[nxty].end());
+                        }
+                        j++;
+                    }
+                }
+                else {
+                    error("终结符与非终结符未正确识别");
+                }
+            }
+            //统计first集的大小
+            cursz = 0;
+            map<char, set<char>>::iterator it;
+            for (it = firstSet.begin(); it != firstSet.end(); it++) {
+                cursz += it->second.size();
+            }
+        }
     }
     /*
-    产生follow集
+    构造follow集
     */
     void generateFollow() {
 
