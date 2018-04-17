@@ -44,6 +44,7 @@ struct ProductionRule {
 */
 struct Grammar {
     int ruleMaxLen = 50;
+    char startSymbol = endSymbol_char;
     vector<ProductionRule> rules;
     set<char> terminal, nonTerminal;
     map<char, set<char>> firstSet, followSet;
@@ -52,6 +53,7 @@ struct Grammar {
     Grammar() {
         readRules();
         generateFirst();
+        generateFollow();
     }
     /*
     确定终结符与非终结符
@@ -83,6 +85,8 @@ struct Grammar {
         char *tmpstr;
         tmpstr = (char *)malloc(ruleMaxLen);
         while (scanf(" %c %s", &tmpc, tmpstr) != EOF) {
+            if (startSymbol == endSymbol_char)
+                startSymbol = tmpc;
             rules.push_back(ProductionRule(tmpc, tmpstr));
         }
         getTerminalAndNon();
@@ -104,12 +108,23 @@ struct Grammar {
         for (it = terminal.begin(); it != terminal.end(); it++) {
             printf("%c\n", *it);
         }
-        puts("FIRST:");
+        puts("First:");
         map<char, set<char>>::iterator fit;
         for (fit = firstSet.begin(); fit != firstSet.end(); fit++) {
             if (terminal.find(fit->first) != terminal.end())
                 continue;
             printf("FIRST[%c]: ", fit->first);
+            for (it = fit->second.begin(); it != fit->second.end(); it++) {
+                printf(" %c", *it);
+            }
+            puts("");
+        }
+        puts("Follow:");
+        for (fit = followSet.begin(); fit != followSet.end(); fit++) {
+            if (terminal.find(fit->first) != terminal.end())
+                continue;
+            printf("FOLLOW[%c]: ", fit->first);
+            fit->second.erase(epsilon_char);
             for (it = fit->second.begin(); it != fit->second.end(); it++) {
                 printf(" %c", *it);
             }
@@ -174,7 +189,51 @@ struct Grammar {
     构造follow集
     */
     void generateFollow() {
-
+        followSet[startSymbol].insert(endSymbol_char);
+        int cursz = 0, lasz = -1;
+        while (cursz != lasz) {
+            lasz = cursz;
+            for (int i = 0; i < (int)rules.size(); i++) {
+                ProductionRule tmprule = rules[i];
+                char A = tmprule.leftPart;
+                int rlen = tmprule.rPartLength;
+                if (rlen == 1) {
+                    char B = tmprule.rightPart[0];
+                    if (nonTerminal.find(B) != nonTerminal.end()) {
+                        followSet[B].insert(followSet[A].begin(), followSet[A].end());
+                    }
+                }
+                else {
+                    //对于产生式A->αBβ
+                    for (int i = 1; i < rlen; i++) {
+                        char B = tmprule.rightPart[i];
+                        //若B是非终结符
+                        if (nonTerminal.find(B) != nonTerminal.end()) {
+                            int k = i + 1;
+                            bool betaHasEpsilon = true;
+                            //确定FIRST[β]是否包含epsilon
+                            //若包含，则将FOLLOW[A]加至FOLLOW[B]中
+                            for (; k < rlen; k++) {
+                                char beta = tmprule.rightPart[k];
+                                followSet[B].insert(firstSet[beta].begin(), firstSet[beta].end());
+                                if (firstSet[beta].find(epsilon_char) == firstSet[beta].end()) {
+                                    betaHasEpsilon = false;
+                                    break;
+                                }
+                            }
+                            if (betaHasEpsilon) {
+                                followSet[B].insert(followSet[A].begin(), followSet[A].end());
+                            }
+                        }
+                    }
+                }
+            }
+            cursz = 0;
+            map<char, set<char>>::iterator it;
+            for (it = followSet.begin(); it != followSet.end(); it++) {
+                cursz += it->second.size();
+            }
+        }
     }
 };
 
@@ -184,3 +243,32 @@ int main() {
     Grammar().printGrammar();
     return 0;
 }
+
+/*
+习题2
+E TG
+G +E
+G $
+T FH
+H T
+H $
+F PK
+K *K
+K $
+P (E)
+P a
+P b
+P ^
+习题1
+S a
+S ^
+S (T)
+T SP
+P ,SP
+4.2
+E TG
+G +TG
+G $
+T FH
+
+*/
