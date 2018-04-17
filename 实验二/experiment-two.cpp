@@ -46,6 +46,7 @@ struct Grammar {
     int ruleMaxLen = 50;
     char startSymbol = endSymbol_char;
     vector<ProductionRule> rules;
+	vector<char> nonTerminalVec;
     set<char> terminal, nonTerminal;
     map<char, set<char>> firstSet, followSet;
     int symbolNumber, ruleNumber;
@@ -62,7 +63,11 @@ struct Grammar {
     */
     void getTerminalAndNon() {
         for (int i = 0; i < (int)rules.size(); i++) {
-            nonTerminal.insert(rules[i].leftPart);
+			char lp = rules[i].leftPart;
+			if (nonTerminal.find(lp) == nonTerminal.end()) {
+				nonTerminal.insert(lp);
+				nonTerminalVec.push_back(lp);
+			}
         }
         for (int i = 0; i < (int)rules.size(); i++) {
             char *tmpstr = rules[i].rightPart;
@@ -109,27 +114,24 @@ struct Grammar {
             printf("%c\n", *it);
         }
         puts("First:");
-        map<char, set<char>>::iterator fit;
-        for (fit = firstSet.begin(); fit != firstSet.end(); fit++) {
-            if (terminal.find(fit->first) != terminal.end())
-                continue;
-            printf("FIRST[%c]: ", fit->first);
-            for (it = fit->second.begin(); it != fit->second.end(); it++) {
-                printf(" %c", *it);
-            }
-            puts("");
-        }
+		for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
+			char tmp = nonTerminalVec[i];
+			printf("FIRST[%c]: ", tmp);
+			for (it = firstSet[tmp].begin(); it != firstSet[tmp].end(); it++) {
+				printf(" %c", *it);
+			}
+			puts("");
+		}
         puts("Follow:");
-        for (fit = followSet.begin(); fit != followSet.end(); fit++) {
-            if (terminal.find(fit->first) != terminal.end())
-                continue;
-            printf("FOLLOW[%c]: ", fit->first);
-            fit->second.erase(epsilon_char);
-            for (it = fit->second.begin(); it != fit->second.end(); it++) {
-                printf(" %c", *it);
-            }
-            puts("");
-        }
+		for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
+			char tmp = nonTerminalVec[i];
+			printf("FOLLOW[%c]: ", tmp);
+			followSet[tmp].erase(epsilon_char);
+			for (it = followSet[tmp].begin(); it != followSet[tmp].end(); it++) {
+				printf(" %c", *it);
+			}
+			puts("");
+		}
     }
     /*
     构造first集
@@ -205,7 +207,7 @@ struct Grammar {
                 }
                 else {
                     //对于产生式A->αBβ
-                    for (int i = 1; i < rlen; i++) {
+                    for (int i = 0; i < rlen; i++) {
                         char B = tmprule.rightPart[i];
                         //若B是非终结符
                         if (nonTerminal.find(B) != nonTerminal.end()) {
@@ -270,5 +272,8 @@ E TG
 G +TG
 G $
 T FH
-
+H *FH
+H $
+F (E)
+F i
 */
