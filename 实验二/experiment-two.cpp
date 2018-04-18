@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #define epsilon $
 #define epsilon_char '$'
@@ -35,6 +36,9 @@ struct ProductionRule {
         memcpy(rightPart, rpart, rPartLength);
         rightPart[rPartLength] = 0;
     }
+	bool operator < (ProductionRule t) const {
+		return rPartLength < t.rPartLength;
+	}
 };
 
 /*
@@ -43,18 +47,51 @@ struct ProductionRule {
 产生式中的ε使用$代替
 */
 struct Grammar {
+	/*
+	规定产生式的长度最大值
+	*/
     int ruleMaxLen = 50;
+	/*
+	记录开始符
+	*/
     char startSymbol = endSymbol_char;
-    vector<ProductionRule> rules;
+    /*
+	所有产生式
+	*/
+	vector<ProductionRule> rules;
+	/*
+	按照产生式输入顺序记录所有非终结符
+	*/
 	vector<char> nonTerminalVec;
+	/*
+	终结符与非终结符集合
+	*/
     set<char> terminal, nonTerminal;
+	/*
+	FIRST集和FOLLOW集
+	*/
     map<char, set<char>> firstSet, followSet;
+	/*
+	预测分析表
+	*/
+	map<char, map<char, set<ProductionRule>>> predictTable;
+	/*
+	终结符与非终结符的个数以及产生式的个数
+	*/
     int symbolNumber, ruleNumber;
 
+	/*
+	构造文法
+
+	读取文法
+	构造FIRST集
+	构造FOLLOW集
+	*/
     Grammar() {
         readRules();
         generateFirst();
         generateFollow();
+		generatePredictTable();
     }
     /*
     确定终结符与非终结符
@@ -97,22 +134,31 @@ struct Grammar {
         getTerminalAndNon();
     }
     /*
-    输出产生式、终结符以及非终结符
+	输出文法
+    
+	输出产生式、终结符以及非终结符
     */
     void printGrammar() {
+		//输出得到的所有产生式
         puts("production rule:");
         for (int i = 0; i < (int)rules.size(); i++) {
             printf("%c -> %s\n", rules[i].leftPart, rules[i].rightPart);
         }
+		puts("");
+		//输出非终结符
         puts("NonTerminal:");
         set<char>::iterator it;
         for (it = nonTerminal.begin(); it != nonTerminal.end(); it++) {
-            printf("%c\n", *it);
+            printf("%c ", *it);
         }
+		puts("\n");
+		//输出终结符
         puts("Terminal:");
         for (it = terminal.begin(); it != terminal.end(); it++) {
-            printf("%c\n", *it);
+            printf("%c ", *it);
         }
+		puts("\n");
+		//输出FIRST集
         puts("First:");
 		for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
 			char tmp = nonTerminalVec[i];
@@ -122,13 +168,65 @@ struct Grammar {
 			}
 			puts("");
 		}
+		puts("");
+		//输出FOLLOW集
         puts("Follow:");
 		for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
 			char tmp = nonTerminalVec[i];
 			printf("FOLLOW[%c]: ", tmp);
-			followSet[tmp].erase(epsilon_char);
 			for (it = followSet[tmp].begin(); it != followSet[tmp].end(); it++) {
 				printf(" %c", *it);
+			}
+			puts("");
+		}
+		puts("");
+		//输出预测表
+		puts("Prediction Table:");
+		printf("    ");
+		//输出第一行
+		for (it = terminal.begin(); it != terminal.end(); it++) {
+			if (*it != epsilon_char)
+				printf("%20c", *it);
+		}
+		printf("%20c", endSymbol_char);
+		puts("");
+		//对每个非终结符
+		//1.输出其字符
+		//2.根据表项大小，输出每一个表项
+		for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
+			char left = nonTerminalVec[i];
+			printf("%-4c", left);
+			for (it = terminal.begin(); it != terminal.end(); it++) {
+				if (*it == epsilon_char)
+					continue;
+				set<ProductionRule> tmpSet = predictTable[left][*it];
+				if (tmpSet.size() == 0) {
+					for (int i = 0; i < 20; i++) 
+						printf(" ");
+				}
+				else if (tmpSet.size() == 1) {
+					set<ProductionRule>::iterator pit = tmpSet.begin();
+					for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
+					printf("%c->%s", pit->leftPart, pit->rightPart);
+				}
+				else {
+					printf("%20s", "not LL(1)");
+				}
+				
+			}
+			//输出结束符#的表项
+			set<ProductionRule> tmpSet = predictTable[left][endSymbol_char];
+			if (tmpSet.size() == 0) {
+				for (int i = 0; i < 20; i++)
+					printf(" ");
+			}
+			else if (tmpSet.size() == 1) {
+				set<ProductionRule>::iterator pit = tmpSet.begin();
+				for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
+				printf("%c->%s", pit->leftPart, pit->rightPart);
+			}
+			else {
+				printf("%20s", "not LL(1)");
 			}
 			puts("");
 		}
@@ -236,7 +334,49 @@ struct Grammar {
                 cursz += it->second.size();
             }
         }
+		for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
+			followSet[nonTerminalVec[i]].erase(epsilon_char);
+		}
     }
+	/*
+	构造预测分析表
+	*/
+	void generatePredictTable() {
+		//遍历每个产生式
+		for (int i = 0; i < (int)rules.size(); i++) {
+			ProductionRule tmprule = rules[i];
+			char A = tmprule.leftPart;
+			bool firstHasEpsilon = false;
+			//1.对于产生式右部的每一个符号sym
+			//2.对于sym的FIRST集中的每个符号it
+			//3.将列为it，行为A的预测表项加入该产生式
+			//4.重复操作2,3
+			//5.若该FIRST集中包epsilon，则回到1，考察下一个符号
+			//6.否则退出考察下一个产生式
+			for (int j = 0; j < tmprule.rPartLength; j++) {
+				char sym = tmprule.rightPart[j];
+				bool hasEpsilon = false;
+				set<char>::iterator it;
+				for (it = firstSet[sym].begin(); it != firstSet[sym].end(); it++) {
+					if (*it == epsilon_char) {
+						hasEpsilon = true;
+						firstHasEpsilon = true;
+						continue;
+					}
+					predictTable[A][*it].insert(tmprule);
+				}
+				if (!hasEpsilon) {
+					break;
+				}
+			}
+			if (firstHasEpsilon) {
+				set<char>::iterator it;
+				for (it = followSet[A].begin(); it != followSet[A].end(); it++) {
+					predictTable[A][*it].insert(tmprule);
+				}
+			}
+		}
+	}
 };
 
 int main() {
@@ -247,6 +387,7 @@ int main() {
 }
 
 /*
+
 习题2
 E TG
 G +E
@@ -261,12 +402,15 @@ P (E)
 P a
 P b
 P ^
+
 习题1
 S a
 S ^
 S (T)
 T SP
 P ,SP
+P $
+
 4.2
 E TG
 G +TG
@@ -276,4 +420,34 @@ H *FH
 H $
 F (E)
 F i
+
+习题3.1
+S Abc
+A a
+A $
+B b
+
+习题3.2
+S Ab
+A a
+A B
+A $
+B b
+B $
+
+习题3.3
+S ABBA
+A a
+A $
+B b
+B $
+
+习题3.4
+S aSe
+S B
+B bBe
+B C
+C cCe
+C d
+
 */

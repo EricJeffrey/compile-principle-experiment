@@ -306,7 +306,7 @@ struct wordAnalyzer {
     */
     void errorExit(const char *errorinfo) {
         printf("Error");
-        puts(errorinfo);
+		printf("%s", errorinfo);
         exit(0);
     }
 
@@ -384,11 +384,14 @@ struct wordAnalyzer {
                     }
                 }
                 //是整数
-                else {
+                else if (tmpch == ' ' || tmpch == '\n' || tmpch == '\t' || tmpch == '\r') {
                     output[j++].setWrod(input + i, k - i, integerv$);
                     i = k;
                     continue;
                 }
+				else {
+					errorExit("整数或实数后面不能跟非空格");
+				}
             }
             //字符
             if (ch == '\'') {
