@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <stack>
 #include <algorithm>
 
 #define epsilon $
@@ -89,6 +90,10 @@ struct Grammar {
 	终结符与非终结符的个数以及产生式的个数
 	*/
     int symbolNumber, ruleNumber;
+    /*
+    是否是LL(1)文法
+    */
+    bool isll1 = true;
 
 	/*
 	构造文法
@@ -96,12 +101,15 @@ struct Grammar {
 	读取文法
 	构造FIRST集
 	构造FOLLOW集
+    构造预测分析表
+    分析
 	*/
     Grammar() {
         readRules();
         generateFirst();
         generateFollow();
 		generatePredictTable();
+        startParse();
     }
     /*
     确定终结符与非终结符
@@ -193,20 +201,6 @@ struct Grammar {
 
 		//输出预测表
         //判断是否是LL(1)文法，若非LL(1)文法则直接输出错误
-        bool isll1 = true;
-        for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
-            char left = nonTerminalVec[i];
-            for (it = terminal.begin(); it != terminal.end(); it++) {
-                if (*it == epsilon_char)
-                    continue;
-                set<ProductionRule> tmpSet = predictTable[left][*it];
-                if (tmpSet.size() > 1) {
-                    isll1 = false;
-                    break;
-                }
-                if (!isll1) break;
-            }
-        }
         if (!isll1) {
             printf("This grammar isn't an LL(1) grammar!");
         }
@@ -408,10 +402,71 @@ struct Grammar {
 					predictTable[A][*it].insert(tmprule);
 				}
 			}
-
-
 		}
+        //判断是不是LL(1)文法
+        isll1 = true;
+        set<char>::iterator it;
+        for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
+            char left = nonTerminalVec[i];
+            for (it = terminal.begin(); it != terminal.end(); it++) {
+                if (*it == epsilon_char)
+                    continue;
+                set<ProductionRule> tmpSet = predictTable[left][*it];
+                if (tmpSet.size() > 1) {
+                    isll1 = false;
+                    break;
+                }
+                if (!isll1) break;
+            }
+        }
 	}
+    /*
+    开始分析
+    */
+    void startParse() {
+        if (!isll1)
+            return;
+        stack<char> s;
+        s.push(endSymbol_char);
+
+        bool flag = true;
+        char a;
+
+        while (flag) {
+            scanf("%c", &a);
+            char X = s.top();
+            s.pop();
+            if (terminal.find(X) != terminal.end()) {
+                if (X != a) {
+                    parseError();
+                }
+            }
+            else if (X == '#') {
+                if (X == a) {
+                    flag = false;
+                }
+                else {
+                    parseError();
+                }
+            }
+            else if (predictTable[X][a].size() == 1) {
+                ProductionRule tmprule = *(predictTable[X][a].begin());
+                for (int i = tmprule.rPartLength - 1; i >= 0; i--) {
+                    s.push(tmprule.rightPart[i]);
+                }
+            }
+            else {
+                parseError();
+            }
+        }
+    }
+    /*
+    分析时的出错处理
+    */
+    void parseError() {
+        printf("分析时出错");
+        exit(-1);
+    }
 };
 
 int main() {
