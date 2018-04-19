@@ -37,7 +37,17 @@ struct ProductionRule {
         rightPart[rPartLength] = 0;
     }
 	bool operator < (ProductionRule t) const {
-		return rPartLength < t.rPartLength;
+        if (leftPart < t.leftPart) return true;
+        else if (leftPart == t.leftPart) {
+            if (rPartLength < t.rPartLength) return true;
+            else if (rPartLength == t.rPartLength) {
+                int tmp = strcmp(rightPart, t.rightPart);
+                if (tmp == -1) return true;
+                else return false;
+            }
+            else return false;
+        }
+        else return false;
 	}
 };
 
@@ -180,56 +190,77 @@ struct Grammar {
 			puts("");
 		}
 		puts("");
+
 		//输出预测表
-		puts("Prediction Table:");
-		printf("    ");
-		//输出第一行
-		for (it = terminal.begin(); it != terminal.end(); it++) {
-			if (*it != epsilon_char)
-				printf("%20c", *it);
-		}
-		printf("%20c", endSymbol_char);
-		puts("");
-		//对每个非终结符
-		//1.输出其字符
-		//2.根据表项大小，输出每一个表项
-		for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
-			char left = nonTerminalVec[i];
-			printf("%-4c", left);
-			for (it = terminal.begin(); it != terminal.end(); it++) {
-				if (*it == epsilon_char)
-					continue;
-				set<ProductionRule> tmpSet = predictTable[left][*it];
-				if (tmpSet.size() == 0) {
-					for (int i = 0; i < 20; i++) 
-						printf(" ");
-				}
-				else if (tmpSet.size() == 1) {
-					set<ProductionRule>::iterator pit = tmpSet.begin();
-					for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
-					printf("%c->%s", pit->leftPart, pit->rightPart);
-				}
-				else {
-					printf("%20s", "not LL(1)");
-				}
-				
-			}
-			//输出结束符#的表项
-			set<ProductionRule> tmpSet = predictTable[left][endSymbol_char];
-			if (tmpSet.size() == 0) {
-				for (int i = 0; i < 20; i++)
-					printf(" ");
-			}
-			else if (tmpSet.size() == 1) {
-				set<ProductionRule>::iterator pit = tmpSet.begin();
-				for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
-				printf("%c->%s", pit->leftPart, pit->rightPart);
-			}
-			else {
-				printf("%20s", "not LL(1)");
-			}
-			puts("");
-		}
+        //判断是否是LL(1)文法，若非LL(1)文法则直接输出错误
+        bool isll1 = true;
+        for (int i = 0; i < (int) nonTerminalVec.size(); i++) {
+            char left = nonTerminalVec[i];
+            for (it = terminal.begin(); it != terminal.end(); it++) {
+                if (*it == epsilon_char)
+                    continue;
+                set<ProductionRule> tmpSet = predictTable[left][*it];
+                if (tmpSet.size() > 1) {
+                    isll1 = false;
+                    break;
+                }
+                if (!isll1) break;
+            }
+        }
+        if (!isll1) {
+            printf("This grammar isn't an LL(1) grammar!");
+        }
+        else {
+            puts("Prediction Table:");
+            printf("    ");
+            //输出第一行
+            for (it = terminal.begin(); it != terminal.end(); it++) {
+                if (*it != epsilon_char)
+                    printf("%20c", *it);
+            }
+            printf("%20c", endSymbol_char);
+            puts("");
+            //对每个非终结符
+            //1.输出其字符
+            //2.根据表项大小，输出每一个表项
+            for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
+                char left = nonTerminalVec[i];
+                printf("%-4c", left);
+                for (it = terminal.begin(); it != terminal.end(); it++) {
+                    if (*it == epsilon_char)
+                        continue;
+                    set<ProductionRule> tmpSet = predictTable[left][*it];
+                    if (tmpSet.size() == 0) {
+                        for (int i = 0; i < 20; i++)
+                            printf(" ");
+                    }
+                    else if (tmpSet.size() == 1) {
+                        set<ProductionRule>::iterator pit = tmpSet.begin();
+                        for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
+                        printf("%c->%s", pit->leftPart, pit->rightPart);
+                    }
+                    else {
+                        printf("%20s", "not LL(1)");
+                    }
+
+                }
+                //输出结束符#的表项
+                set<ProductionRule> tmpSet = predictTable[left][endSymbol_char];
+                if (tmpSet.size() == 0) {
+                    for (int i = 0; i < 20; i++)
+                        printf(" ");
+                }
+                else if (tmpSet.size() == 1) {
+                    set<ProductionRule>::iterator pit = tmpSet.begin();
+                    for (int i = 0; i < 17 - pit->rPartLength; i++) printf(" ");
+                    printf("%c->%s", pit->leftPart, pit->rightPart);
+                }
+                else {
+                    printf("%20s", "not LL(1)");
+                }
+                puts("");
+            }
+        }
     }
     /*
     构造first集
@@ -271,6 +302,7 @@ struct Grammar {
                             firstSet[X].insert(firstSet[nxty].begin(), firstSet[nxty].end());
                         }
                         j++;
+                        cury = tmprule.rightPart[j];
                     }
                 }
                 else {
@@ -343,10 +375,11 @@ struct Grammar {
 	*/
 	void generatePredictTable() {
 		//遍历每个产生式
-		for (int i = 0; i < (int)rules.size(); i++) {
-			ProductionRule tmprule = rules[i];
-			char A = tmprule.leftPart;
-			bool firstHasEpsilon = false;
+		for (int i = 0; i < (int) rules.size(); i++) {
+			ProductionRule tmprule = rules[i]; 
+            
+            char A = tmprule.leftPart;
+			bool firstHasEpsilon = true;
 			//1.对于产生式右部的每一个符号sym
 			//2.对于sym的FIRST集中的每个符号it
 			//3.将列为it，行为A的预测表项加入该产生式
@@ -360,12 +393,12 @@ struct Grammar {
 				for (it = firstSet[sym].begin(); it != firstSet[sym].end(); it++) {
 					if (*it == epsilon_char) {
 						hasEpsilon = true;
-						firstHasEpsilon = true;
 						continue;
 					}
 					predictTable[A][*it].insert(tmprule);
 				}
 				if (!hasEpsilon) {
+                    firstHasEpsilon = false;
 					break;
 				}
 			}
@@ -375,6 +408,8 @@ struct Grammar {
 					predictTable[A][*it].insert(tmprule);
 				}
 			}
+
+
 		}
 	}
 };
@@ -426,6 +461,7 @@ S Abc
 A a
 A $
 B b
+B $
 
 习题3.2
 S Ab
