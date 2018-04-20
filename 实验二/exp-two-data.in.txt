@@ -1,5 +1,11 @@
-S a
-S ^
-S (T)
-T SP
-P ,SP
+1
+8
+E TG
+G +TG
+G $
+T FH
+H *FH
+H $
+F (E)
+F i
+i+i*i#

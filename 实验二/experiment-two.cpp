@@ -8,6 +8,8 @@
 #include <stack>
 #include <algorithm>
 
+#define parse_succeed u8"语法分析成功，该输入串正确"    
+#define parse_error_str u8"解析时出错"    
 #define epsilon $
 #define epsilon_char '$'
 #define endSymbol #
@@ -15,10 +17,6 @@
 
 using namespace std;
 
-void error(const char *s) {
-    printf("%s", s);
-    exit(-1);
-}
 
 /*
 产生式结构
@@ -109,7 +107,6 @@ struct Grammar {
         generateFirst();
         generateFollow();
 		generatePredictTable();
-        startParse();
     }
     /*
     确定终结符与非终结符
@@ -141,10 +138,13 @@ struct Grammar {
     默认输入的文法为LL(1)文法
     */
     void readRules() {
+        int t;
+        scanf("%d", &t);
         char tmpc;
         char *tmpstr;
-        tmpstr = (char *)malloc(ruleMaxLen);
-        while (scanf(" %c %s", &tmpc, tmpstr) != EOF) {
+        while (t--) {
+            tmpstr = (char *)malloc(ruleMaxLen);
+            scanf(" %c %s", &tmpc, tmpstr);
             if (startSymbol == endSymbol_char)
                 startSymbol = tmpc;
             rules.push_back(ProductionRule(tmpc, tmpstr));
@@ -300,7 +300,7 @@ struct Grammar {
                     }
                 }
                 else {
-                    error("终结符与非终结符未正确识别");
+                    errorParsing("终结符与非终结符未正确识别");
                 }
             }
             //统计first集的大小
@@ -428,43 +428,50 @@ struct Grammar {
             return;
         stack<char> s;
         s.push(endSymbol_char);
-
+        s.push(nonTerminalVec[0]);
         bool flag = true;
         char a;
+        scanf(" %c", &a);
 
         while (flag) {
-            scanf("%c", &a);
             char X = s.top();
-            s.pop();
             if (terminal.find(X) != terminal.end()) {
                 if (X != a) {
-                    parseError();
+                    errorParsing(parse_error_str, X, a);
                 }
+                s.pop();
+                scanf(" %c", &a);
             }
-            else if (X == '#') {
+            else if (X == endSymbol_char) {
                 if (X == a) {
                     flag = false;
+                    s.pop();
                 }
                 else {
-                    parseError();
+                    errorParsing(parse_error_str, X, a);
                 }
             }
             else if (predictTable[X][a].size() == 1) {
+                s.pop();
                 ProductionRule tmprule = *(predictTable[X][a].begin());
+                if (tmprule.rPartLength == 1 && tmprule.rightPart[0] == epsilon_char)
+                    continue;
                 for (int i = tmprule.rPartLength - 1; i >= 0; i--) {
                     s.push(tmprule.rightPart[i]);
                 }
             }
             else {
-                parseError();
+                errorParsing(parse_error_str, X, a);
             }
         }
+        printf(parse_succeed);
     }
     /*
     分析时的出错处理
     */
-    void parseError() {
-        printf("分析时出错");
+    void errorParsing(const char *str, char x = 0, char a = 0) {
+        printf(str);
+        printf("x: %c   a: %c\n", x, a);
         exit(-1);
     }
 };
@@ -472,7 +479,13 @@ struct Grammar {
 int main() {
     freopen("exp-two-data.in.txt", "r", stdin);
     freopen("exp-two-data.out.txt", "w+", stdout);
-    Grammar().printGrammar();
+    int t;
+    scanf("%d", &t);
+    while (t--) {
+        Grammar grammar;
+        grammar.printGrammar();
+        grammar.startParse();
+    }
     return 0;
 }
 
