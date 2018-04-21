@@ -1,0 +1,64 @@
+5
+
+8
+E TG
+G +TG
+G $
+T FH
+H *FH
+H $
+F (E)
+F i
+1
+i+i*i#
+
+13
+E TG
+G +E
+G $
+T FH
+H T
+H $
+F PK
+K *K
+K $
+P (E)
+P a
+P b
+P ^
+0
+
+6
+S a
+S ^
+S (T)
+T SP
+P ,SP
+P $
+0
+
+6
+S Ab
+A a
+A B
+A $
+B b
+B $
+0
+
+5
+S ABBA
+A a
+A $
+B b
+B $
+0
+
+6
+S aSe
+S B
+B bBe
+B C
+C cCe
+C d
+0

@@ -1,0 +1,3 @@
+﻿  experiment-two.cpp
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-class.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  编译原理实验.vcxproj -> E:\GitFiles\compile-principle-experiment\编译原理实验\Debug\编译原理实验.exe
