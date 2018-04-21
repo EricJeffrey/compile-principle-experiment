@@ -1,0 +1,14 @@
+﻿  experiment-one.cpp
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-class.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-one.cpp(17): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-one.cpp(91): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-one.cpp(171): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  experiment-two.cpp
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-class.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-two.cpp(245): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-two.cpp(292): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+  Main.cpp
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\main.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+e:\gitfiles\compile-principle-experiment\编译原理实验\编译原理实验\experiment-class.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  正在生成代码...
+  编译原理实验.vcxproj -> E:\GitFiles\compile-principle-experiment\编译原理实验\x64\Debug\编译原理实验.exe
