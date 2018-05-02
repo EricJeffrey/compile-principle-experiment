@@ -194,7 +194,7 @@ public:
     /*
     开始分析
     */
-    void startParse();
+    bool startParse();
     /*
     析构
     */

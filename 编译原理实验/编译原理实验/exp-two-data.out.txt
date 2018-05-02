@@ -36,6 +36,23 @@ G                                       G->$                                  G-
 T                  T->FH                                                                           T->FH                    
 H                                       H->$              H->*FH                H->$                                    H->$
 F                 F->(E)                                                                            F->i                    
+#E                  i
+#GT                 i
+#GHF                i
+#GHi                i
+#GH                 +
+#G                  +
+#GT+                +
+#GT                 i
+#GHF                i
+#GHi                i
+#GH                 *
+#GHF*               *
+#GHF                i
+#GHi                i
+#GH                 #
+#G                  #
+#                   #
 语法分析成功，该输入串正确
 --------------------------------------------------
 

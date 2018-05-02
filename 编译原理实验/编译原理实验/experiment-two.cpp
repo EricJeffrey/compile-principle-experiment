@@ -1,7 +1,7 @@
 ﻿
 #include "experiment-class.h"
 #include "experiment-header.h"
-extern void errorExit(const char *str, char x = 0, char a = 0);
+extern bool errorExit(const char *str, char x = 0, char a = 0);
 /*
 产生式结构
 包括产生式左部，右部
@@ -349,46 +349,60 @@ void Grammar::generatePredictTable() {
         }
     }
 }
-void Grammar::startParse() {
+bool Grammar::startParse() {
     if (!isll1)
-        return;
+        return false;
     stack<char> s;
+	vector<char> tmpvec;
     s.push(endSymbol_char);
+	tmpvec.push_back(endSymbol_char);
     s.push(nonTerminalVec[0]);
+	tmpvec.push_back(nonTerminalVec[0]);
     bool flag = true;
     char a;
     scanf(" %c", &a);
 
     while (flag) {
+		for (int i = 0; i < (int)tmpvec.size(); i++)
+			printf("%c", tmpvec[i]);
+		for (int i = 0; i < 20 - tmpvec.size(); i++) 
+			printf(" ");
+		printf("%c\n", a);
         char X = s.top();
         if (terminal.find(X) != terminal.end()) {
             if (X != a) {
-                errorExit(parse_error_str, X, a);
+                return errorExit(parse_error_str, X, a);
             }
             s.pop();
+			tmpvec.pop_back();
             scanf(" %c", &a);
         }
         else if (X == endSymbol_char) {
             if (X == a) {
                 flag = false;
                 s.pop();
+				tmpvec.pop_back();
             }
             else {
-                errorExit(parse_error_str, X, a);
+                return errorExit(parse_error_str, X, a);
             }
         }
         else if (predictTable[X][a].size() == 1) {
             s.pop();
+			tmpvec.pop_back();
             ProductionRule tmprule = *(predictTable[X][a].begin());
             if (tmprule.getRPartLength() == 1 && tmprule.getRightPart()[0] == epsilon_char)
                 continue;
             for (int i = tmprule.getRPartLength() - 1; i >= 0; i--) {
-                s.push(tmprule.getRightPart()[i]);
+				char tmpc = tmprule.getRightPart()[i];
+                s.push(tmpc);
+				tmpvec.push_back(tmpc);
             }
         }
         else {
-            errorExit(parse_error_str, X, a);
+            return errorExit(parse_error_str, X, a);
         }
     }
     puts(parse_succeed);
+	return true;
 }

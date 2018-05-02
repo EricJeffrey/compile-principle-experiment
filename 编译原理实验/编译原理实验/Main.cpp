@@ -5,11 +5,11 @@
 输出错误信息以及额外信息
 实验二中用到参数x以及a
 */
-void errorExit(const char *str, char x = 0, char a = 0) {
+bool errorExit(const char *str, char x = 0, char a = 0) {
     printf(str);
     if (x != 0 || a != 0)
         printf("x: %c   a: %c\n", x, a);
-    exit(-1);
+	return false;
 }
 
 int main() {

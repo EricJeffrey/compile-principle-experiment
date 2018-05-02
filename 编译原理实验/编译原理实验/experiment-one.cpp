@@ -21,7 +21,7 @@ const char *oneCodeToStr[] = { "#include","#define", "main", "if", "then", "whil
 "multiple", "multipleequal", "divide", "divideequal", "colon", "equal", "less", "notequal", "lessequal", "greater",
 "greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string",
 "character", "leftbrace", "rightbrace" };
-extern void errorExit(const char *str, char x = 0, char a = 0);
+extern bool errorExit(const char *str, char x = 0, char a = 0);
 
 void WordTuple::setWrod(char *source, int sz, int tc) {
     len = sz + 3;
@@ -79,8 +79,7 @@ WordAnalyzer::WordAnalyzer() {
     //输出词法分析后的结果
     for (int i = 0; i < wordsLen; i++) {
         wordParseOutput[i].printWord();
-    }
-}
+    }}
 bool WordAnalyzer::isDigit(char ch) {
     return ch >= '0' && ch <= '9';
 }
