@@ -30,23 +30,23 @@ ProductionRule::~ProductionRule() {
 Grammar::Grammar() {
     freopen("exp-two-data.in.txt", "r", stdin);
     freopen("exp-two-data.out.txt", "w+", stdout);
-    int t;
-    scanf("%d", &t);
-    while (t--) {
-        puts("--------------------------------------------------");
-        clear();
-        readRules();
-        generateFirst();
-        generateFollow();
-        generatePredictTable();
-        printGrammar();
-        int k;
-        scanf("%d", &k);
-        while (k--) {
-            startParse();
-        }
-        puts("--------------------------------------------------\n\n");
+    puts("--------------------------------------------------");
+    clear();
+    readRules();
+    generateFirst();
+    generateFollow();
+    generatePredictTable();
+    printGrammar();
+    int k;
+    scanf("%d", &k);
+    getchar();
+    while (k--) {
+        char *str = (char*)malloc(500);
+        gets_s(str, 500);
+        startParse(str);
+        free(str);
     }
+    puts("--------------------------------------------------\n\n");
 }
 void Grammar::clear() {
     startSymbol = endSymbol_char;
@@ -349,7 +349,7 @@ void Grammar::generatePredictTable() {
         }
     }
 }
-bool Grammar::startParse() {
+bool Grammar::startParse(const char *str) {
     if (!isll1)
         return false;
     stack<char> s;
@@ -359,15 +359,19 @@ bool Grammar::startParse() {
     s.push(nonTerminalVec[0]);
 	tmpvec.push_back(nonTerminalVec[0]);
     bool flag = true;
-    char a;
-    scanf(" %c", &a);
+    int stri = 0, len = strlen(str);
 
-    while (flag) {
-		for (int i = 0; i < (int)tmpvec.size(); i++)
+    while (flag && stri < len) {
+        puts("");
+        char a = str[stri];
+        int cntOfChar = 0;
+		for (int i = 0; i < (int)tmpvec.size(); i++, cntOfChar++)
 			printf("%c", tmpvec[i]);
-		for (int i = 0; i < 20 - tmpvec.size(); i++) 
+		for (int i = 0; i < 20 - tmpvec.size(); i++, cntOfChar++)
 			printf(" ");
-		printf("%c\n", a);
+        for (int i = stri; i < len; i++, cntOfChar++)
+            printf("%c", str[i]);
+
         char X = s.top();
         if (terminal.find(X) != terminal.end()) {
             if (X != a) {
@@ -375,7 +379,7 @@ bool Grammar::startParse() {
             }
             s.pop();
 			tmpvec.pop_back();
-            scanf(" %c", &a);
+            stri++;
         }
         else if (X == endSymbol_char) {
             if (X == a) {
@@ -398,11 +402,69 @@ bool Grammar::startParse() {
                 s.push(tmpc);
 				tmpvec.push_back(tmpc);
             }
+            for (int i = 0; i < 60 - cntOfChar; i++)
+                printf(" ");
+            printf("%c->%s", tmprule.getLeftPart(), tmprule.getRightPart());
         }
         else {
             return errorExit(parse_error_str, X, a);
         }
     }
+    puts("");
     puts(parse_succeed);
 	return true;
 }
+
+/*
+
+13
+E TG
+G +E
+G $
+T FH
+H T
+H $
+F PK
+K *K
+K $
+P (E)
+P a
+P b
+P ^
+0
+
+6
+S a
+S ^
+S (T)
+T SP
+P ,SP
+P $
+0
+
+6
+S Ab
+A a
+A B
+A $
+B b
+B $
+0
+
+5
+S ABBA
+A a
+A $
+B b
+B $
+0
+
+6
+S aSe
+S B
+B bBe
+B C
+C cCe
+C d
+0
+*/

@@ -36,164 +36,110 @@ G                                       G->$                                  G-
 T                  T->FH                                                                           T->FH                    
 H                                       H->$              H->*FH                H->$                                    H->$
 F                 F->(E)                                                                            F->i                    
-#E                  i
-#GT                 i
-#GHF                i
+
+#E                  i+i*i*iiii*sdfadg asd i + i             E->TG
+#GT                 i+i*i*iiii*sdfadg asd i + i             T->FH
+#GHF                i+i*i*iiii*sdfadg asd i + i             F->i
+#GHi                i+i*i*iiii*sdfadg asd i + i
+#GH                 +i*i*iiii*sdfadg asd i + i
+#G                  +i*i*iiii*sdfadg asd i + i              G->+TG
+#GT+                +i*i*iiii*sdfadg asd i + i
+#GT                 i*i*iiii*sdfadg asd i + i               T->FH
+#GHF                i*i*iiii*sdfadg asd i + i               F->i
+#GHi                i*i*iiii*sdfadg asd i + i
+#GH                 *i*iiii*sdfadg asd i + i                H->*FH
+#GHF*               *i*iiii*sdfadg asd i + i
+#GHF                i*iiii*sdfadg asd i + i                 F->i
+#GHi                i*iiii*sdfadg asd i + i
+#GH                 *iiii*sdfadg asd i + i                  H->*FH
+#GHF*               *iiii*sdfadg asd i + i
+#GHF                iiii*sdfadg asd i + i                   F->i
+#GHi                iiii*sdfadg asd i + i
+#GH                 iii*sdfadg asd i + i
+!!!!!!!!!!!!!!!!!!!!
+解析时出错x: H   a: i
+!!!!!!!!!!!!!!!!!!!!
+
+#E                  i*i+i                                   E->TG
+#GT                 i*i+i                                   T->FH
+#GHF                i*i+i                                   F->i
+#GHi                i*i+i
+#GH                 *i+i                                    H->*FH
+#GHF*               *i+i
+#GHF                i+i                                     F->i
+#GHi                i+i
+#GH                 +i
+#G                  +i                                      G->+TG
+#GT+                +i
+#GT                 i                                       T->FH
+#GHF                i                                       F->i
 #GHi                i
-#GH                 +
-#G                  +
-#GT+                +
-#GT                 i
-#GHF                i
-#GHi                i
-#GH                 *
-#GHF*               *
-#GHF                i
-#GHi                i
-#GH                 #
-#G                  #
-#                   #
+语法分析成功，该输入串正确
+
+#E                  islgais                                 E->TG
+#GT                 islgais                                 T->FH
+#GHF                islgais                                 F->i
+#GHi                islgais
+#GH                 slgais
+!!!!!!!!!!!!!!!!!!!!
+解析时出错x: H   a: s
+!!!!!!!!!!!!!!!!!!!!
+
+#E                  i*(i+i*(i+i*i+i+i))                     E->TG
+#GT                 i*(i+i*(i+i*i+i+i))                     T->FH
+#GHF                i*(i+i*(i+i*i+i+i))                     F->i
+#GHi                i*(i+i*(i+i*i+i+i))
+#GH                 *(i+i*(i+i*i+i+i))                      H->*FH
+#GHF*               *(i+i*(i+i*i+i+i))
+#GHF                (i+i*(i+i*i+i+i))                       F->(E)
+#GH)E(              (i+i*(i+i*i+i+i))
+#GH)E               i+i*(i+i*i+i+i))                        E->TG
+#GH)GT              i+i*(i+i*i+i+i))                        T->FH
+#GH)GHF             i+i*(i+i*i+i+i))                        F->i
+#GH)GHi             i+i*(i+i*i+i+i))
+#GH)GH              +i*(i+i*i+i+i))
+#GH)G               +i*(i+i*i+i+i))                         G->+TG
+#GH)GT+             +i*(i+i*i+i+i))
+#GH)GT              i*(i+i*i+i+i))                          T->FH
+#GH)GHF             i*(i+i*i+i+i))                          F->i
+#GH)GHi             i*(i+i*i+i+i))
+#GH)GH              *(i+i*i+i+i))                           H->*FH
+#GH)GHF*            *(i+i*i+i+i))
+#GH)GHF             (i+i*i+i+i))                            F->(E)
+#GH)GH)E(           (i+i*i+i+i))
+#GH)GH)E            i+i*i+i+i))                             E->TG
+#GH)GH)GT           i+i*i+i+i))                             T->FH
+#GH)GH)GHF          i+i*i+i+i))                             F->i
+#GH)GH)GHi          i+i*i+i+i))
+#GH)GH)GH           +i*i+i+i))
+#GH)GH)G            +i*i+i+i))                              G->+TG
+#GH)GH)GT+          +i*i+i+i))
+#GH)GH)GT           i*i+i+i))                               T->FH
+#GH)GH)GHF          i*i+i+i))                               F->i
+#GH)GH)GHi          i*i+i+i))
+#GH)GH)GH           *i+i+i))                                H->*FH
+#GH)GH)GHF*         *i+i+i))
+#GH)GH)GHF          i+i+i))                                 F->i
+#GH)GH)GHi          i+i+i))
+#GH)GH)GH           +i+i))
+#GH)GH)G            +i+i))                                  G->+TG
+#GH)GH)GT+          +i+i))
+#GH)GH)GT           i+i))                                   T->FH
+#GH)GH)GHF          i+i))                                   F->i
+#GH)GH)GHi          i+i))
+#GH)GH)GH           +i))
+#GH)GH)G            +i))                                    G->+TG
+#GH)GH)GT+          +i))
+#GH)GH)GT           i))                                     T->FH
+#GH)GH)GHF          i))                                     F->i
+#GH)GH)GHi          i))
+#GH)GH)GH           ))
+#GH)GH)G            ))
+#GH)GH)             ))
+#GH)GH              )
+#GH)G               )
+#GH)                )
 语法分析成功，该输入串正确
 --------------------------------------------------
-
-
---------------------------------------------------
-production rule:
-E -> TG
-G -> +E
-G -> $
-T -> FH
-H -> T
-H -> $
-F -> PK
-K -> *K
-K -> $
-P -> (E)
-P -> a
-P -> b
-P -> ^
-
-NonTerminal:
-E F G H K P T 
-
-Terminal:
-$ ( ) * + ^ a b 
-
-First:
-FIRST[E]:  ( ^ a b
-FIRST[G]:  $ +
-FIRST[T]:  ( ^ a b
-FIRST[H]:  $ ( ^ a b
-FIRST[F]:  ( ^ a b
-FIRST[K]:  $ *
-FIRST[P]:  ( ^ a b
-
-Follow:
-FOLLOW[E]:  # )
-FOLLOW[G]:  # )
-FOLLOW[T]:  # ) +
-FOLLOW[H]:  # ) +
-FOLLOW[F]:  # ( ) + ^ a b
-FOLLOW[K]:  # ( ) + ^ a b
-FOLLOW[P]:  # ( ) * + ^ a b
-
-Prediction Table:
-                       (                   )                   *                   +                   ^                   a                   b                   #
-E                  E->TG                                                                           E->TG               E->TG               E->TG                    
-G                                       G->$                                   G->+E                                                                            G->$
-T                  T->FH                                                                           T->FH               T->FH               T->FH                    
-H                   H->T                H->$                                    H->$                H->T                H->T                H->T                H->$
-F                  F->PK                                                                           F->PK               F->PK               F->PK                    
-K                   K->$                K->$               K->*K                K->$                K->$                K->$                K->$                K->$
-P                 P->(E)                                                                            P->^                P->a                P->b                    
---------------------------------------------------
-
-
---------------------------------------------------
-production rule:
-S -> a
-S -> ^
-S -> (T)
-T -> SP
-P -> ,SP
-P -> $
-
-NonTerminal:
-P S T 
-
-Terminal:
-$ ( ) , ^ a 
-
-First:
-FIRST[S]:  ( ^ a
-FIRST[T]:  ( ^ a
-FIRST[P]:  $ ,
-
-Follow:
-FOLLOW[S]:  # ) ,
-FOLLOW[T]:  )
-FOLLOW[P]:  )
-
-Prediction Table:
-                       (                   )                   ,                   ^                   a                   #
-S                 S->(T)                                                        S->^                S->a                    
-T                  T->SP                                                       T->SP               T->SP                    
-P                                       P->$              P->,SP                                                            
---------------------------------------------------
-
-
---------------------------------------------------
-production rule:
-S -> Ab
-A -> a
-A -> B
-A -> $
-B -> b
-B -> $
-
-NonTerminal:
-A B S 
-
-Terminal:
-$ a b 
-
-First:
-FIRST[S]:  $ a b
-FIRST[A]:  $ a b
-FIRST[B]:  $ b
-
-Follow:
-FOLLOW[S]:  #
-FOLLOW[A]:  b
-FOLLOW[B]:  b
-
-This grammar isn't an LL(1) grammar!--------------------------------------------------
-
-
---------------------------------------------------
-production rule:
-S -> ABBA
-A -> a
-A -> $
-B -> b
-B -> $
-
-NonTerminal:
-A B S 
-
-Terminal:
-$ a b 
-
-First:
-FIRST[S]:  $ a b
-FIRST[A]:  $ a
-FIRST[B]:  $ b
-
-Follow:
-FOLLOW[S]:  #
-FOLLOW[A]:  # a b
-FOLLOW[B]:  # a b
-
-This grammar isn't an LL(1) grammar!--------------------------------------------------
 
 

@@ -6,9 +6,13 @@
 实验二中用到参数x以及a
 */
 bool errorExit(const char *str, char x = 0, char a = 0) {
+    puts("\n!!!!!!!!!!!!!!!!!!!!");
     printf(str);
     if (x != 0 || a != 0)
         printf("x: %c   a: %c\n", x, a);
+    else 
+        puts("");
+    puts("!!!!!!!!!!!!!!!!!!!!");
 	return false;
 }
 

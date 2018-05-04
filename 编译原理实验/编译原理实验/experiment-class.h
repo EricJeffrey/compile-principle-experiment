@@ -194,7 +194,7 @@ public:
     /*
     开始分析
     */
-    bool startParse();
+    bool startParse(const char *str);
     /*
     析构
     */
