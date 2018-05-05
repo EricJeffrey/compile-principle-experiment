@@ -10,84 +10,80 @@
 	无法识别包含的头文件（但能够判断#include以及#define)
 */
 
-#include "experiment-header.h"
-#include "experiment-class.h"
+#include "exp1Header.h"
+#include "Exp1WordAnalyzer.h"
 
 //处理串最大长度，种别码到种别码信息映射
-const int oneMaxn = 1e5 + 5;
-const char *oneCodeToStr[] = { "#include","#define", "main", "if", "then", "while", "do", "static", "int", "double", "struct",
+const string oneCodeToStr[] = { "#include","#define", "main", "if", "then", "while", "do", "static", "int", "double", "struct",
 "break", "else", "long", "switch", "case", "typedef", "char", "return", "const", "float", "short", "continue", "for",
 "void", "sizeof", "default", "identifier", "integer", "real", "add", "addequal", "addadd", "sub", "subsub", "subequal",
 "multiple", "multipleequal", "divide", "divideequal", "colon", "equal", "less", "notequal", "lessequal", "greater",
 "greaterequal", "assign$", "semicolon", "leftbracket", "rightbracket", "reale", "undefined", "string",
 "character", "leftbrace", "rightbrace" };
-extern bool errorExit(const char *str, char x = 0, char a = 0);
+extern bool errorExit(const string &str, char x = 0, char a = 0);
 
-void WordTuple::setWrod(char *source, int sz, int tc) {
-    len = sz + 3;
-    word = (char *)malloc(len);
-    memset(word, 0, sizeof(word));
-    strncpy(word, source, sz);
-    word[sz] = 0;
+Exp1WordTuple::Exp1WordTuple(const string &source, int tc) {
+    word = source;
+    len = (int)word.size();
     typeCode = tc;
 }
-void WordTuple::printWord() {
+void Exp1WordTuple::printWord() {
     if (typeCode == IDv$) {
         for (int i = 2; i <= 26; i++) {
-            if (strcmp(word, oneCodeToStr[i]) == 0) {
+            if (word == oneCodeToStr[i]) {
                 typeCode = i;
                 break;
             }
         }
     }
-    printf("word: %s", word);
-    for (int i = 0; i < 26 - len; i++) printf(" ");
-    printf("\t typeCode: %3d\t", typeCode);
+    cout << "word: " << word;
+    for (int i = 0; i < 26 - len; i++) 
+        cout << ' ';
+    cout << '\t' << "typecode: " << typeCode << '\t';
     if (typeCode >= 27)
-        puts(oneCodeToStr[typeCode]);
+        cout << oneCodeToStr[typeCode] << endl;
     else
-        puts("key word");
+        cout << keyWordDesc << endl;
 }
-WordTuple::~WordTuple() {
-    free(word);
+Exp1WordTuple::~Exp1WordTuple() {
+    
 }
 
-WordAnalyzer::WordAnalyzer() {
+Exp1WordAnalyzer::Exp1WordAnalyzer() {
     freopen("exp-one-data.out.txt", "w+", stdout);
     freopen("exp-one-data.in.txt", "r", stdin);
-    char *sourceCodeInput = (char *)malloc(oneMaxn);
-    char *preprocessOutput = (char *)malloc(oneMaxn);
-    memset(preprocessOutput, 0, oneMaxn);
-    memset(sourceCodeInput, 0, oneMaxn);
+    string sourceCodeInput;
+    string preprocessOutput;
 
     //读入源代码
-    for (int i = 0; scanf("%c", sourceCodeInput + i) != EOF; i++)
-        ;
+    char tmpch;
+    while (cin.get(tmpch)) 
+        sourceCodeInput += tmpch;
+    preprocessOutput.resize(sourceCodeInput.size());
     //预处理
     preprocess(sourceCodeInput, preprocessOutput);
+    preprocessOutput.erase(preprocessOutput.find_last_not_of('\0') + 1);
 
     //输出预处理后的结果
-    for (int i = 0; i < (int)strlen(preprocessOutput); i++) {
-        printf("%c", preprocessOutput[i]);
-    }
-    puts("");
+    cout << preprocessOutput << endl;
 
     //解析词法
-    WordTuple *wordParseOutput = (WordTuple *)malloc(sizeof(WordTuple) * oneMaxn);
+    vector<Exp1WordTuple> wordParseOutput;
     int wordsLen = wordParse(preprocessOutput, wordParseOutput);
 
     //输出词法分析后的结果
     for (int i = 0; i < wordsLen; i++) {
         wordParseOutput[i].printWord();
     }}
-bool WordAnalyzer::isDigit(char ch) {
+bool Exp1WordAnalyzer::isDigit(char ch) {
     return ch >= '0' && ch <= '9';
 }
-bool WordAnalyzer::isLetter(char ch) {
+bool Exp1WordAnalyzer::isLetter(char ch) {
     return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
-void WordAnalyzer::preprocess(char *input, char *output) {
-    int len = strlen(input);
+
+void Exp1WordAnalyzer::preprocess(const string &input, string &output) {
+    int len = (int) input.size();
     int i = 0, j = 0;
     bool spaceGot = false, lineCommentGot = false, blockCommentGot = false, stringGot = false;
     while (i < len) {
@@ -166,8 +162,8 @@ void WordAnalyzer::preprocess(char *input, char *output) {
     }
     output[j] = 0;
 }
-int WordAnalyzer::wordParse(char *input, WordTuple *output) {
-        int len = strlen(input), j = 0, i = 0;
+int Exp1WordAnalyzer::wordParse(const string &input, vector<Exp1WordTuple> &output) {
+        int len = (int) input.size(), i = 0;
         while (i < len) {
             char ch = input[i];
             //标识符
@@ -177,7 +173,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                 while (isLetter(tmpch) || isDigit(tmpch) || tmpch == '_') {
                     tmpch = input[++k];
                 }
-                output[j++].setWrod(input + i, k - i, IDv$);
+                output.push_back(Exp1WordTuple(input.substr(i, k - i), IDv$));
                 i = k;
                 continue;
             }
@@ -201,7 +197,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                             while (isDigit(tmpch)) {
                                 tmpch = input[++k];
                             }
-                            output[j++].setWrod(input + i, k - i, realv$);
+                            output.push_back(Exp1WordTuple(input.substr(i, k - i), realv$));
                             i = k;
                             continue;
                         }
@@ -211,7 +207,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                     }
                     //确定是实数
                     else {
-                        output[j++].setWrod(input + i, k - i, realv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, k - i), realv$));
                         i = k;
                         continue;
                     }
@@ -224,7 +220,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                         while (isDigit(tmpch)) {
                             tmpch = input[++k];
                         }
-                        output[j++].setWrod(input + i, k - i, realev$);
+                        output.push_back(Exp1WordTuple(input.substr(i, k - i), realev$));
                         i = k;
                         continue;
                     }
@@ -236,7 +232,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                 //是整数
                 else if (tmpch == ' ' || tmpch == ')' || tmpch == ']' || tmpch == '\n' || tmpch == '\t'
                     || tmpch == '\r' || tmpch == ';' || tmpch == ',') {
-                    output[j++].setWrod(input + i, k - i, integerv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, k - i), integerv$));
                     i = k;
                     continue;
                 }
@@ -249,12 +245,12 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                 if (i + 1 < len) {
                     char tmpch = input[i + 1];
                     if (tmpch == '\\' && +3 < len && input[i + 3] == '\'') {
-                        output[j++].setWrod(input + i, 4, characterv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 4), characterv$));
                         i = i + 4;
                         continue;
                     }
                     else if (tmpch >= 20 && tmpch <= 126 && input[i + 2] == '\'') {
-                        output[j++].setWrod(input + i, 3, characterv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 3), characterv$));
                         i = i + 3;
                         continue;
                     }
@@ -279,7 +275,7 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                             errorExit(u8"无字符串结束符");
                         tmpch = input[k];
                     }
-                    output[j++].setWrod(input + i, k - i + 1, stringv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, k - i + 1), stringv$));
                     i = k + 1;
                     continue;
                 }
@@ -289,8 +285,8 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
             }
             //宏定义#define和头文件包含#include
             if (ch == '#') {
-                if (i + 7 < len && strncmp(input + i, oneCodeToStr[0], 8) == 0) {
-                    output[j++].setWrod(input + i, 8, includev$);
+                if (i + 7 < len && input.substr(i, 8) == oneCodeToStr[0]) {
+                    output.push_back(Exp1WordTuple(input.substr(i, 8), includev$));
                     int k = i;
                     while (input[k] != '>' && input[k] != 0 && input[k] != EOF)
                         k++;
@@ -300,8 +296,8 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
                         k++;
                     i = k;
                 }
-                else if (i + 6 < len && strncmp(input + i, oneCodeToStr[1], 7) == 0) {
-                    output[j++].setWrod(input + i, 7, definev$);
+                else if (i + 6 < len && input.substr(i, 7) == oneCodeToStr[1]) {
+                    output.push_back(Exp1WordTuple(input.substr(i, 7), definev$));
                     i = i + 7;
                 }
                 else {
@@ -312,14 +308,14 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
             if (ch == '+') {
                 if (i + 1 < len && (input[i + 1] == '+' || input[i + 1] == '=')) {
                     if (input[i + 1] == '+')
-                        output[j++].setWrod(input + i, 2, addaddv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 2), addaddv$));
                     else
-                        output[j++].setWrod(input + i, 2, addequalv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 2), addequalv$));
                     i = i + 2;
                     continue;
                 }
                 else {
-                    output[j++].setWrod(input + i, 1, addv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 1), addv$));
                     i++;
                     continue;
                 }
@@ -328,14 +324,14 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
             if (ch == '-') {
                 if (i + 1 < len && (input[i + 1] == '-' || input[i + 1] == '=')) {
                     if (input[i + 1] == '-')
-                        output[j++].setWrod(input + i, 2, subsubv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 2), subsubv$));
                     else
-                        output[j++].setWrod(input + i, 2, subequalv$);
+                        output.push_back(Exp1WordTuple(input.substr(i, 2), subequalv$));
                     i += 2;
                     continue;
                 }
                 else {
-                    output[j++].setWrod(input + i, 1, subv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 1), subv$));
                     i++;
                     continue;
                 }
@@ -343,12 +339,12 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
             //* *=
             if (ch == '*') {
                 if (i + 1 < len && input[i + 1] == '=') {
-                    output[j++].setWrod(input + i, 2, multipleequalv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 2), multipleequalv$));
                     i += 2;
                     continue;
                 }
                 else {
-                    output[j++].setWrod(input + i, 1, multiplev$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 1), multiplev$));
                     i++;
                     continue;
                 }
@@ -356,95 +352,95 @@ int WordAnalyzer::wordParse(char *input, WordTuple *output) {
             // / /=
             if (ch == '/') {
                 if (i + 1 < len && input[i + 1] == '=') {
-                    output[j++].setWrod(input + i, 2, divideequalv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 2), divideequalv$));
                     i += 2;
                     continue;
                 }
                 else {
-                    output[j++].setWrod(input + i, 1, dividev$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 1), dividev$));
                     i++;
                     continue;
                 }
             }
             // :
             if (ch == ':') {
-                output[j++].setWrod(input + i, 1, colonv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), colonv$));
                 i++;
                 continue;
             }
             // = ==
             if (ch == '=') {
                 if (i + 1 < len && input[i + 1] == '=') {
-                    output[j++].setWrod(input + i, 2, equalv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 2), equalv$));
                     i += 2;
                     continue;
                 }
-                output[j++].setWrod(input + i, 1, assign$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), assign$));
                 i++;
                 continue;
             }
             // < <=
             if (ch == '<') {
                 if (i + 1 < len && input[i + 1] == '=') {
-                    output[j++].setWrod(input + i, 2, lessequalv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 2), lessequalv$));
                     i += 2;
                     continue;
                 }
-                output[j++].setWrod(input + i, 1, lessv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), lessv$));
                 i++;
                 continue;
             }
             // > >=
             if (ch == '>') {
                 if (i + 1 < len && input[i + 1] == '=') {
-                    output[j++].setWrod(input + i, 2, greaterequalv$);
+                    output.push_back(Exp1WordTuple(input.substr(i, 2), greaterequalv$));
                     i += 2;
                     continue;
                 }
-                output[j++].setWrod(input + i, 1, greaterv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), greaterv$));
                 i++;
                 continue;
             }
             // !=
             if (ch == '!' && i + 1 < len && input[i + 1] == '=') {
-                output[j++].setWrod(input + i, 2, notequalv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 2), notequalv$));
                 i += 2;
                 continue;
             }
             // ;
             if (ch == ';') {
-                output[j++].setWrod(input + i, 1, semicolonv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), semicolonv$));
                 i++;
                 continue;
             }
             // (
             if (ch == '(') {
-                output[j++].setWrod(input + i, 1, leftbracketv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), leftbracketv$));
                 i++;
                 continue;
             }
             // )
             if (ch == ')') {
-                output[j++].setWrod(input + i, 1, rightbracketv$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), rightbracketv$));
                 i++;
                 continue;
             }
             // {
             if (ch == '{') {
-                output[j++].setWrod(input + i, 1, leftbracev$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), leftbracev$));
                 i++;
                 continue;
             }
             // }
             if (ch == '}') {
-                output[j++].setWrod(input + i, 1, rightbracev$);
+                output.push_back(Exp1WordTuple(input.substr(i, 1), rightbracev$));
                 i++;
                 continue;
             }
             i++;
         }
-        return j;
+        return (int) output.size();
     }
-WordAnalyzer::~WordAnalyzer() {
+Exp1WordAnalyzer::~Exp1WordAnalyzer() {
 
 }

@@ -1,36 +1,34 @@
-﻿
-#include "experiment-class.h"
-#include "experiment-header.h"
-extern bool errorExit(const char *str, char x = 0, char a = 0);
+﻿#include "exp2Header.h"
+#include "Exp2ProductionRule.h"
+#include "Exp2Grammar.h"
+
+extern bool errorExit(const string &str, char x = 0, char a = 0);
 /*
 产生式结构
 包括产生式左部，右部
 */
-ProductionRule::ProductionRule(char lpart, char *rpart) {
+Exp2ProductionRule::Exp2ProductionRule(char lpart, string &rpart) {
     leftPart = lpart;
-    rPartLength = 0;
-    while (rpart[rPartLength] != 0) rPartLength++;
-    rightPart = (char *)malloc(rPartLength + 1);
-    memcpy(rightPart, rpart, rPartLength);
-    rightPart[rPartLength] = 0;
+    rightPart = rpart;
+    rPartLength = (int) rightPart.size();
 }
-char ProductionRule::getLeftPart() {
+char Exp2ProductionRule::getLeftPart() {
     return leftPart;
 }
-char* ProductionRule::getRightPart() {
+string Exp2ProductionRule::getRightPart() {
     return rightPart;
 }
-int ProductionRule::getRPartLength() {
+int Exp2ProductionRule::getRPartLength() {
     return rPartLength;
 }
-ProductionRule::~ProductionRule() {
+Exp2ProductionRule::~Exp2ProductionRule() {
     
 }
 
-Grammar::Grammar() {
+Exp2Grammar::Exp2Grammar() {
     freopen("exp-two-data.in.txt", "r", stdin);
     freopen("exp-two-data.out.txt", "w+", stdout);
-    puts("--------------------------------------------------");
+    cout << "--------------------------------------------------" << endl;
     clear();
     readRules();
     generateFirst();
@@ -38,17 +36,15 @@ Grammar::Grammar() {
     generatePredictTable();
     printGrammar();
     int k;
-    scanf("%d", &k);
-    getchar();
+    cin >> k;
     while (k--) {
-        char *str = (char*)malloc(500);
-        gets_s(str, 500);
-        startParse(str);
-        free(str);
+        string tmp;
+        getline(cin, tmp);
+        startParse(tmp);
     }
-    puts("--------------------------------------------------\n\n");
+    cout << "--------------------------------------------------" << endl << endl;
 }
-void Grammar::clear() {
+void Exp2Grammar::clear() {
     startSymbol = endSymbol_char;
     rules.clear();
     nonTerminalVec.clear();
@@ -61,7 +57,20 @@ void Grammar::clear() {
     ruleNumber = 0;
     isll1 = true;
 }
-void Grammar::getTerminalAndNon() {
+void Exp2Grammar::readRules() {
+    int t;
+    cin >> t;
+    char tmpc;
+    string tmpstr;
+    while (t--) {
+        cin >> tmpc >> tmpstr;
+        if (startSymbol == endSymbol_char)
+            startSymbol = tmpc;
+        rules.push_back(Exp2ProductionRule(tmpc, tmpstr));
+    }
+    getTerminalAndNon();
+}
+void Exp2Grammar::getTerminalAndNon() {
     for (int i = 0; i < (int)rules.size(); i++) {
         char lp = rules[i].getLeftPart();
         if (nonTerminal.find(lp) == nonTerminal.end()) {
@@ -70,7 +79,7 @@ void Grammar::getTerminalAndNon() {
         }
     }
     for (int i = 0; i < (int)rules.size(); i++) {
-        char *tmpstr = rules[i].getRightPart();
+        string tmpstr = rules[i].getRightPart();
         for (int j = 0; j < rules[i].getRPartLength(); j++) {
             if (tmpstr[j] != 0 && nonTerminal.find(tmpstr[j]) == nonTerminal.end()) {
                 terminal.insert(tmpstr[j]);
@@ -78,137 +87,18 @@ void Grammar::getTerminalAndNon() {
         }
     }
 }
-void Grammar::readRules() {
-    int t;
-    scanf("%d", &t);
-    char tmpc;
-    char *tmpstr;
-    while (t--) {
-        tmpstr = (char *)malloc(ruleMaxLen);
-        scanf(" %c %s", &tmpc, tmpstr);
-        if (startSymbol == endSymbol_char)
-            startSymbol = tmpc;
-        rules.push_back(ProductionRule(tmpc, tmpstr));
-    }
-    getTerminalAndNon();
-}
-void Grammar::printGrammar() {
-    //输出得到的所有产生式
-    puts("production rule:");
-    for (int i = 0; i < (int)rules.size(); i++) {
-        printf("%c -> %s\n", rules[i].getLeftPart(), rules[i].getRightPart());
-    }
-    puts("");
-    //输出非终结符
-    puts("NonTerminal:");
-    set<char>::iterator it;
-    for (it = nonTerminal.begin(); it != nonTerminal.end(); it++) {
-        printf("%c ", *it);
-    }
-    puts("\n");
-    //输出终结符
-    puts("Terminal:");
-    for (it = terminal.begin(); it != terminal.end(); it++) {
-        printf("%c ", *it);
-    }
-    puts("\n");
-    //输出FIRST集
-    puts("First:");
-    for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
-        char tmp = nonTerminalVec[i];
-        printf("FIRST[%c]: ", tmp);
-        for (it = firstSet[tmp].begin(); it != firstSet[tmp].end(); it++) {
-            printf(" %c", *it);
-        }
-        puts("");
-    }
-    puts("");
-    //输出FOLLOW集
-    puts("Follow:");
-    for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
-        char tmp = nonTerminalVec[i];
-        printf("FOLLOW[%c]: ", tmp);
-        for (it = followSet[tmp].begin(); it != followSet[tmp].end(); it++) {
-            printf(" %c", *it);
-        }
-        puts("");
-    }
-    puts("");
-
-    //输出预测表
-    //判断是否是LL(1)文法，若非LL(1)文法则直接输出错误
-    if (!isll1) {
-        printf("This grammar isn't an LL(1) grammar!");
-    }
-    else {
-        puts("Prediction Table:");
-        printf("    ");
-        //输出第一行
-        for (it = terminal.begin(); it != terminal.end(); it++) {
-            if (*it != epsilon_char)
-                printf("%20c", *it);
-        }
-        printf("%20c", endSymbol_char);
-        puts("");
-        //对每个非终结符
-        //1.输出其字符
-        //2.根据表项大小，输出每一个表项
-        for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
-            char left = nonTerminalVec[i];
-            printf("%-4c", left);
-            for (it = terminal.begin(); it != terminal.end(); it++) {
-                if (*it == epsilon_char)
-                    continue;
-                set<ProductionRule> tmpSet = predictTable[left][*it];
-                if (tmpSet.size() == 0) {
-                    for (int i = 0; i < 20; i++)
-                        printf(" ");
-                }
-                else if (tmpSet.size() == 1) {
-                    set<ProductionRule>::iterator pit = tmpSet.begin();
-                    ProductionRule tmprule = *pit;
-                    for (int i = 0; i < 17 - (tmprule.getRPartLength()); i++) printf(" ");
-                    printf("%c->%s", tmprule.getLeftPart(), tmprule.getRightPart());
-                }
-                else {
-                    printf("%20s", "not LL(1)");
-                }
-
-            }
-            //输出结束符#的表项
-            set<ProductionRule> tmpSet = predictTable[left][endSymbol_char];
-            if (tmpSet.size() == 0) {
-                for (int i = 0; i < 20; i++)
-                    printf(" ");
-            }
-            else if (tmpSet.size() == 1) {
-                set<ProductionRule>::iterator pit = tmpSet.begin();
-                ProductionRule tmprule = *pit;
-                for (int i = 0; i < 17 - (tmprule.getRPartLength()); i++) printf(" ");
-                printf("%c->%s", tmprule.getLeftPart(), tmprule.getRightPart());
-            }
-            else {
-                printf("%20s", "not LL(1)");
-            }
-            puts("");
-        }
-    }
-}
-void Grammar::generateFirst() {
-    set<char>::iterator it;
+void Exp2Grammar::generateFirst() {
     //终结符：FIRST(X) = X
-    for (it = terminal.begin(); it != terminal.end(); it++) {
-        firstSet[*it].insert(*it);
+    for (char ch : terminal) {
+        firstSet[ch].insert(ch);
     }
     int cursz = 0;
     int lasz = -1;
     while (cursz != lasz) {
         lasz = cursz;
         //对于每一个产生式进行判断
-        for (int i = 0; i < (int)rules.size(); i++) {
-            ProductionRule tmprule = rules[i];
-            char X = tmprule.getLeftPart();
-            char Y = tmprule.getRightPart()[0];
+        for (Exp2ProductionRule tmprule : rules) {
+            char X = tmprule.getLeftPart(), Y = tmprule.getRightPart()[0];
             int ylen = tmprule.getRPartLength();
             //X->a... : FIRST[X] += a
             if (terminal.find(Y) != terminal.end()) {
@@ -240,19 +130,17 @@ void Grammar::generateFirst() {
         }
         //统计first集的大小
         cursz = 0;
-        map<char, set<char>>::iterator it;
-        for (it = firstSet.begin(); it != firstSet.end(); it++) {
-            cursz += it->second.size();
+        for (auto tmp : firstSet) {
+            cursz += (int) tmp.second.size();
         }
     }
 }
-void Grammar::generateFollow() {
+void Exp2Grammar::generateFollow() {
     followSet[startSymbol].insert(endSymbol_char);
     int cursz = 0, lasz = -1;
     while (cursz != lasz) {
         lasz = cursz;
-        for (int i = 0; i < (int)rules.size(); i++) {
-            ProductionRule tmprule = rules[i];
+        for (Exp2ProductionRule tmprule : rules) {
             char A = tmprule.getLeftPart();
             int rlen = tmprule.getRPartLength();
             if (rlen == 1) {
@@ -287,20 +175,17 @@ void Grammar::generateFollow() {
             }
         }
         cursz = 0;
-        map<char, set<char>>::iterator it;
-        for (it = followSet.begin(); it != followSet.end(); it++) {
-            cursz += it->second.size();
+        for (auto tmp : followSet) {
+            cursz += (int) tmp.second.size();
         }
     }
-    for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
-        followSet[nonTerminalVec[i]].erase(epsilon_char);
+    for (char ch : nonTerminalVec) {
+        followSet[ch].erase(epsilon_char);
     }
 }
-void Grammar::generatePredictTable() {
+void Exp2Grammar::generatePredictTable() {
     //遍历每个产生式
-    for (int i = 0; i < (int)rules.size(); i++) {
-        ProductionRule tmprule = rules[i];
-
+    for (Exp2ProductionRule tmprule : rules) {
         char A = tmprule.getLeftPart();
         bool firstHasEpsilon = true;
         //1.对于产生式右部的每一个符号sym
@@ -309,16 +194,14 @@ void Grammar::generatePredictTable() {
         //4.重复操作2,3
         //5.若该FIRST集中包epsilon，则回到1，考察下一个符号
         //6.否则退出考察下一个产生式
-        for (int j = 0; j < tmprule.getRPartLength(); j++) {
-            char sym = tmprule.getRightPart()[j];
+        for (char sym : tmprule.getRightPart()) {
             bool hasEpsilon = false;
-            set<char>::iterator it;
-            for (it = firstSet[sym].begin(); it != firstSet[sym].end(); it++) {
-                if (*it == epsilon_char) {
+            for (char ch : firstSet[sym]) {
+                if (ch == epsilon_char) {
                     hasEpsilon = true;
                     continue;
                 }
-                predictTable[A][*it].insert(tmprule);
+                predictTable[A][ch].insert(tmprule);
             }
             if (!hasEpsilon) {
                 firstHasEpsilon = false;
@@ -326,30 +209,118 @@ void Grammar::generatePredictTable() {
             }
         }
         if (firstHasEpsilon) {
-            set<char>::iterator it;
-            for (it = followSet[A].begin(); it != followSet[A].end(); it++) {
-                predictTable[A][*it].insert(tmprule);
+            for (char ch : followSet[A]) {
+                predictTable[A][ch].insert(tmprule);
             }
         }
     }
     //判断是不是LL(1)文法
     isll1 = true;
-    set<char>::iterator it;
-    for (int i = 0; i < (int)nonTerminalVec.size(); i++) {
-        char left = nonTerminalVec[i];
-        for (it = terminal.begin(); it != terminal.end(); it++) {
-            if (*it == epsilon_char)
+    for (char left : nonTerminalVec) {
+        for (char ch : terminal) {
+            if (ch == epsilon_char)
                 continue;
-            set<ProductionRule> tmpSet = predictTable[left][*it];
-            if (tmpSet.size() > 1) {
+            if (predictTable[left][ch].size() > 1) {
                 isll1 = false;
                 break;
             }
-            if (!isll1) break;
+            if (!isll1) 
+                break;
         }
     }
 }
-bool Grammar::startParse(const char *str) {
+void Exp2Grammar::printGrammar() {
+    //输出得到的所有产生式
+    cout << "production rule:";
+    for (auto rule : rules) {
+        cout << rule.getLeftPart() << " -> " << rule.getRightPart() << endl;
+    }
+    cout << endl << "NonTerminal:" << endl;
+    //输出非终结符
+    set<char>::iterator it;
+    for (auto tmp : nonTerminal) {
+        cout << tmp << ' ';
+    }
+    cout << endl << "Terminal:" << endl;
+    //输出终结符
+    for (auto tmp : terminal) {
+        cout << tmp << ' ';
+    }
+    cout << endl << "First:" << endl;
+    //输出FIRST集
+    for (char ch : nonTerminalVec) {
+        cout << "FIRST[" << ch << "]:";
+        for (char tmpch : firstSet[ch]) {
+            cout << ' ' << tmpch;
+        }
+        cout << endl;
+    }
+    cout << endl << "Follow:" << endl;
+    //输出FOLLOW集
+    for (char ch : nonTerminalVec) {
+        cout << "FOLLOW[" << ch << "]:";
+        for (char tmpch : followSet[ch]) {
+            cout << ' ' << tmpch;
+        }
+        cout << endl;
+    }
+    cout << endl;
+
+    //输出预测表
+    //判断是否是LL(1)文法，若非LL(1)文法则直接输出错误
+    if (!isll1) {
+        cout << "This grammar isn't an LL(1) grammar!";
+    }
+    else {
+        cout << "Prediction Table:" << endl << "    ";
+        //输出第一行
+        for (char ch : terminal) {
+            if (ch != epsilon_char)
+                cout << setw(20) << ch;
+        }
+        cout << setw(20) << endSymbol_char << endl;
+        //对每个非终结符
+        //1.输出其字符
+        //2.根据表项大小，输出每一个表项
+        for (char left : nonTerminalVec) {
+            cout << left << "   ";
+            for (char ch : terminal) {
+                if (ch == epsilon_char)
+                    continue;
+                set<Exp2ProductionRule> tmpSet = predictTable[left][ch];
+                int tmpsz = (int)tmpSet.size();
+                if (tmpsz == 0) {
+                    cout << setw(20) << ' ';
+                }
+                else if (tmpsz == 1) {
+                    Exp2ProductionRule tmprule = *tmpSet.begin();
+                    cout << setw(17 - tmprule.getRPartLength()) << " ";
+                    cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
+                }
+                else {
+                    cout << setw(20) << "not LL(1)";
+                    return;
+                }
+            }
+            set<Exp2ProductionRule> tmpSet = predictTable[left][endSymbol_char];
+            int tmpsz = (int)tmpSet.size();
+            if (tmpsz == 0) {
+                cout << setw(20) << ' ';
+            }
+            else if (tmpsz == 1) {
+                Exp2ProductionRule tmprule = *tmpSet.begin();
+                cout << setw(17 - tmprule.getRPartLength()) << ' ';
+                cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
+            }
+            else {
+                cout << setw(20) << "not LL(1)";
+                return;
+            }
+            cout << endl;
+        }
+    }
+}
+bool Exp2Grammar::startParse(const string &str) {
     if (!isll1)
         return false;
     stack<char> s;
@@ -359,19 +330,16 @@ bool Grammar::startParse(const char *str) {
     s.push(nonTerminalVec[0]);
 	tmpvec.push_back(nonTerminalVec[0]);
     bool flag = true;
-    int stri = 0, len = strlen(str);
+    int stri = 0, len = (int)str.size();
 
     while (flag && stri < len) {
-        puts("");
+        cout << endl;
         char a = str[stri];
-        int cntOfChar = 0;
-		for (int i = 0; i < (int)tmpvec.size(); i++, cntOfChar++)
-			printf("%c", tmpvec[i]);
-		for (int i = 0; i < 20 - tmpvec.size(); i++, cntOfChar++)
-			printf(" ");
-        for (int i = stri; i < len; i++, cntOfChar++)
-            printf("%c", str[i]);
-
+        for (char ch : tmpvec) {
+            cout << ch;
+        }
+        cout << setw(30 - tmpvec.size() - 1) << ' ';
+        cout << str.substr(stri);
         char X = s.top();
         if (terminal.find(X) != terminal.end()) {
             if (X != a) {
@@ -394,7 +362,7 @@ bool Grammar::startParse(const char *str) {
         else if (predictTable[X][a].size() == 1) {
             s.pop();
 			tmpvec.pop_back();
-            ProductionRule tmprule = *(predictTable[X][a].begin());
+            Exp2ProductionRule tmprule = *(predictTable[X][a].begin());
             if (tmprule.getRPartLength() == 1 && tmprule.getRightPart()[0] == epsilon_char)
                 continue;
             for (int i = tmprule.getRPartLength() - 1; i >= 0; i--) {
@@ -402,16 +370,14 @@ bool Grammar::startParse(const char *str) {
                 s.push(tmpc);
 				tmpvec.push_back(tmpc);
             }
-            for (int i = 0; i < 60 - cntOfChar; i++)
-                printf(" ");
-            printf("%c->%s", tmprule.getLeftPart(), tmprule.getRightPart());
+            cout << setw(30 - len) << ' ';
+            cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
         }
         else {
             return errorExit(parse_error_str, X, a);
         }
     }
-    puts("");
-    puts(parse_succeed);
+    cout << endl << parse_succeed_str << endl;
 	return true;
 }
 

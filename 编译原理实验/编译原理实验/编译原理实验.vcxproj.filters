@@ -32,10 +32,25 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="experiment-header.h">
+    <ClInclude Include="Exp2Grammar.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="experiment-class.h">
+    <ClInclude Include="Exp2ProductionRule.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Exp1WordAnalyzer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Exp1WordTuple.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="commonHeader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="exp1Header.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="exp2Header.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

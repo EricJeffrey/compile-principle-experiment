@@ -1,22 +1,9 @@
-﻿//vs使用此宏定义后可以使用gets, freopen等
-#define _CRT_SECURE_NO_WARNINGS
-#include <cstdio>
-#include <cstdlib>
-#include <algorithm>
-#include <cstring>
-#include <cmath>
-#include <Windows.h>
-#include <map>
-#include <vector>
-#include <stack>
-#include <algorithm>
-#include <set>
+#pragma once
+#include "commonHeader.h"
 
-using namespace std;
-
-//实验一
+//ʵ��һ
 /*
-关键字，标识符，整数，实数种别码
+�ؼ��֣���ʶ����������ʵ���ֱ���
 #include	0	       	real	    29
 #define		1	       	+			30
 main		2	       	+=			31
@@ -47,7 +34,7 @@ default		26			{           55
 ID			27          }           56
 integer		28
 
-预定义单词种别码
+Ԥ���嵥���ֱ���
 */
 
 #define includev$ 0
@@ -108,11 +95,4 @@ integer		28
 #define leftbracev$ 55
 #define rightbracev$ 56
 
-//实验二
-#define parse_succeed u8"语法分析成功，该输入串正确"
-#define parse_error_str u8"解析时出错"    
-#define epsilon $
-#define epsilon_char '$'
-#define endSymbol #
-#define endSymbol_char '#'
-
+const string keyWordDesc = "key word";

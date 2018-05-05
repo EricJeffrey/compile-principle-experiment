@@ -1,6 +1,5 @@
 --------------------------------------------------
-production rule:
-E -> TG
+production rule:E -> TG
 G -> +TG
 G -> $
 T -> FH
@@ -11,23 +10,21 @@ F -> i
 
 NonTerminal:
 E F G H T 
-
 Terminal:
 $ ( ) * + i 
-
 First:
-FIRST[E]:  ( i
-FIRST[G]:  $ +
-FIRST[T]:  ( i
-FIRST[H]:  $ *
-FIRST[F]:  ( i
+FIRST[E]: ( i
+FIRST[G]: $ +
+FIRST[T]: ( i
+FIRST[H]: $ *
+FIRST[F]: ( i
 
 Follow:
-FOLLOW[E]:  # )
-FOLLOW[G]:  # )
-FOLLOW[T]:  # ) +
-FOLLOW[H]:  # ) +
-FOLLOW[F]:  # ) * +
+FOLLOW[E]: # )
+FOLLOW[G]: # )
+FOLLOW[T]: # ) +
+FOLLOW[H]: # ) +
+FOLLOW[F]: # ) * +
 
 Prediction Table:
                        (                   )                   *                   +                   i                   #
@@ -37,109 +34,56 @@ T                  T->FH                                                        
 H                                       H->$              H->*FH                H->$                                    H->$
 F                 F->(E)                                                                            F->i                    
 
-#E                  i+i*i*iiii*sdfadg asd i + i             E->TG
-#GT                 i+i*i*iiii*sdfadg asd i + i             T->FH
-#GHF                i+i*i*iiii*sdfadg asd i + i             F->i
-#GHi                i+i*i*iiii*sdfadg asd i + i
-#GH                 +i*i*iiii*sdfadg asd i + i
-#G                  +i*i*iiii*sdfadg asd i + i              G->+TG
-#GT+                +i*i*iiii*sdfadg asd i + i
-#GT                 i*i*iiii*sdfadg asd i + i               T->FH
-#GHF                i*i*iiii*sdfadg asd i + i               F->i
-#GHi                i*i*iiii*sdfadg asd i + i
-#GH                 *i*iiii*sdfadg asd i + i                H->*FH
-#GHF*               *i*iiii*sdfadg asd i + i
-#GHF                i*iiii*sdfadg asd i + i                 F->i
-#GHi                i*iiii*sdfadg asd i + i
-#GH                 *iiii*sdfadg asd i + i                  H->*FH
-#GHF*               *iiii*sdfadg asd i + i
-#GHF                iiii*sdfadg asd i + i                   F->i
-#GHi                iiii*sdfadg asd i + i
-#GH                 iii*sdfadg asd i + i
-!!!!!!!!!!!!!!!!!!!!
-解析时出错x: H   a: i
-!!!!!!!!!!!!!!!!!!!!
-
-#E                  i*i+i                                   E->TG
-#GT                 i*i+i                                   T->FH
-#GHF                i*i+i                                   F->i
-#GHi                i*i+i
-#GH                 *i+i                                    H->*FH
-#GHF*               *i+i
-#GHF                i+i                                     F->i
-#GHi                i+i
-#GH                 +i
-#G                  +i                                      G->+TG
-#GT+                +i
-#GT                 i                                       T->FH
-#GHF                i                                       F->i
-#GHi                i
 语法分析成功，该输入串正确
 
-#E                  islgais                                 E->TG
-#GT                 islgais                                 T->FH
-#GHF                islgais                                 F->i
-#GHi                islgais
-#GH                 slgais
+#E                           i+i*i*iiii*sdfadg asd i + i   E->TG
+#GT                          i+i*i*iiii*sdfadg asd i + i   T->FH
+#GHF                         i+i*i*iiii*sdfadg asd i + i   F->i
+#GHi                         i+i*i*iiii*sdfadg asd i + i
+#GH                          +i*i*iiii*sdfadg asd i + i
+#G                           +i*i*iiii*sdfadg asd i + i   G->+TG
+#GT+                         +i*i*iiii*sdfadg asd i + i
+#GT                          i*i*iiii*sdfadg asd i + i   T->FH
+#GHF                         i*i*iiii*sdfadg asd i + i   F->i
+#GHi                         i*i*iiii*sdfadg asd i + i
+#GH                          *i*iiii*sdfadg asd i + i   H->*FH
+#GHF*                        *i*iiii*sdfadg asd i + i
+#GHF                         i*iiii*sdfadg asd i + i   F->i
+#GHi                         i*iiii*sdfadg asd i + i
+#GH                          *iiii*sdfadg asd i + i   H->*FH
+#GHF*                        *iiii*sdfadg asd i + i
+#GHF                         iiii*sdfadg asd i + i   F->i
+#GHi                         iiii*sdfadg asd i + i
+#GH                          iii*sdfadg asd i + i
 !!!!!!!!!!!!!!!!!!!!
-解析时出错x: H   a: s
+解析时出错
+x: H    a: i
 !!!!!!!!!!!!!!!!!!!!
 
-#E                  i*(i+i*(i+i*i+i+i))                     E->TG
-#GT                 i*(i+i*(i+i*i+i+i))                     T->FH
-#GHF                i*(i+i*(i+i*i+i+i))                     F->i
-#GHi                i*(i+i*(i+i*i+i+i))
-#GH                 *(i+i*(i+i*i+i+i))                      H->*FH
-#GHF*               *(i+i*(i+i*i+i+i))
-#GHF                (i+i*(i+i*i+i+i))                       F->(E)
-#GH)E(              (i+i*(i+i*i+i+i))
-#GH)E               i+i*(i+i*i+i+i))                        E->TG
-#GH)GT              i+i*(i+i*i+i+i))                        T->FH
-#GH)GHF             i+i*(i+i*i+i+i))                        F->i
-#GH)GHi             i+i*(i+i*i+i+i))
-#GH)GH              +i*(i+i*i+i+i))
-#GH)G               +i*(i+i*i+i+i))                         G->+TG
-#GH)GT+             +i*(i+i*i+i+i))
-#GH)GT              i*(i+i*i+i+i))                          T->FH
-#GH)GHF             i*(i+i*i+i+i))                          F->i
-#GH)GHi             i*(i+i*i+i+i))
-#GH)GH              *(i+i*i+i+i))                           H->*FH
-#GH)GHF*            *(i+i*i+i+i))
-#GH)GHF             (i+i*i+i+i))                            F->(E)
-#GH)GH)E(           (i+i*i+i+i))
-#GH)GH)E            i+i*i+i+i))                             E->TG
-#GH)GH)GT           i+i*i+i+i))                             T->FH
-#GH)GH)GHF          i+i*i+i+i))                             F->i
-#GH)GH)GHi          i+i*i+i+i))
-#GH)GH)GH           +i*i+i+i))
-#GH)GH)G            +i*i+i+i))                              G->+TG
-#GH)GH)GT+          +i*i+i+i))
-#GH)GH)GT           i*i+i+i))                               T->FH
-#GH)GH)GHF          i*i+i+i))                               F->i
-#GH)GH)GHi          i*i+i+i))
-#GH)GH)GH           *i+i+i))                                H->*FH
-#GH)GH)GHF*         *i+i+i))
-#GH)GH)GHF          i+i+i))                                 F->i
-#GH)GH)GHi          i+i+i))
-#GH)GH)GH           +i+i))
-#GH)GH)G            +i+i))                                  G->+TG
-#GH)GH)GT+          +i+i))
-#GH)GH)GT           i+i))                                   T->FH
-#GH)GH)GHF          i+i))                                   F->i
-#GH)GH)GHi          i+i))
-#GH)GH)GH           +i))
-#GH)GH)G            +i))                                    G->+TG
-#GH)GH)GT+          +i))
-#GH)GH)GT           i))                                     T->FH
-#GH)GH)GHF          i))                                     F->i
-#GH)GH)GHi          i))
-#GH)GH)GH           ))
-#GH)GH)G            ))
-#GH)GH)             ))
-#GH)GH              )
-#GH)G               )
-#GH)                )
+#E                           i*i+i                         E->TG
+#GT                          i*i+i                         T->FH
+#GHF                         i*i+i                         F->i
+#GHi                         i*i+i
+#GH                          *i+i                         H->*FH
+#GHF*                        *i+i
+#GHF                         i+i                         F->i
+#GHi                         i+i
+#GH                          +i
+#G                           +i                         G->+TG
+#GT+                         +i
+#GT                          i                         T->FH
+#GHF                         i                         F->i
+#GHi                         i
 语法分析成功，该输入串正确
+
+#E                           islgais                       E->TG
+#GT                          islgais                       T->FH
+#GHF                         islgais                       F->i
+#GHi                         islgais
+#GH                          slgais
+!!!!!!!!!!!!!!!!!!!!
+解析时出错
+x: H    a: s
+!!!!!!!!!!!!!!!!!!!!
 --------------------------------------------------
-
 

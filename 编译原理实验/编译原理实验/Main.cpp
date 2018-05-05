@@ -1,26 +1,24 @@
-#include "experiment-class.h"
+#include "Exp1WordAnalyzer.h"
+#include "Exp2Grammar.h"
 
 /*
 错误处理
 输出错误信息以及额外信息
 实验二中用到参数x以及a
 */
-bool errorExit(const char *str, char x = 0, char a = 0) {
-    puts("\n!!!!!!!!!!!!!!!!!!!!");
-    printf(str);
+bool errorExit(const string &str, char x = 0, char a = 0) {
+    cout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl << str << endl;
     if (x != 0 || a != 0)
-        printf("x: %c   a: %c\n", x, a);
-    else 
-        puts("");
-    puts("!!!!!!!!!!!!!!!!!!!!");
+        cout << "x: " << x << "    a: " << a;
+    cout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl;
 	return false;
 }
 
 int main() {
     //实验一
-    //WordAnalyzer();
+    Exp1WordAnalyzer();
     //实验二
-    Grammar();
+    //Exp2Grammar();
 }
 
 /*

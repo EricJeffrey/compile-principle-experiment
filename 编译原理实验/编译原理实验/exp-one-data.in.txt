@@ -1,4 +1,4 @@
-//vs使用此宏定义后可以使用gets, freopen等
+//make vs able to use gets, freopen等
 #define _CRT_SECURE_NO_WARNINGS
 /*
 编译原理实验一
@@ -441,6 +441,7 @@ int main() {
 	for (int i = 0; i < wordsLen; i++) {
 		wordParseOutput[i].printWord();
 	}
-
+    int 3lsdg;
+    double 3elg;
     return 0;
 }

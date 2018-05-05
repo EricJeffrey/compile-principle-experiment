@@ -24,8 +24,13 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="experiment-class.h" />
-    <ClInclude Include="experiment-header.h" />
+    <ClInclude Include="commonHeader.h" />
+    <ClInclude Include="exp1Header.h" />
+    <ClInclude Include="Exp1WordAnalyzer.h" />
+    <ClInclude Include="Exp1WordTuple.h" />
+    <ClInclude Include="Exp2Grammar.h" />
+    <ClInclude Include="exp2Header.h" />
+    <ClInclude Include="Exp2ProductionRule.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
