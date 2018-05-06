@@ -6,7 +6,6 @@
 输出错误信息以及额外信息
 实验二中用到参数x以及a
 */
-ostringstream scout;
 bool errorExit(const string &str, ostringstream & scout, char x = 0, char a = 0) {
     scout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl << str << endl;
     if (x != 0 || a != 0)

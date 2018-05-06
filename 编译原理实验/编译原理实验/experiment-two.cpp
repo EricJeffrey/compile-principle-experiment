@@ -377,7 +377,10 @@ bool Exp2Grammar::startParse(const string &str) {
             return errorExit(parse_error_str, scout, X, a);
         }
     }
-    scout << endl << parse_succeed_str << endl;
+    if (flag)
+        return errorExit(parse_error_str, scout);
+    else
+        scout << endl << parse_succeed_str << endl;
 	return true;
 }
 
