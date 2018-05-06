@@ -45,6 +45,11 @@ private:
     是否是LL(1)文法
     */
     bool isll1 = true;
+    /*
+    输入输出流
+    */
+    istringstream scin;
+    ostringstream scout;
 public:
     /*
     构造文法
@@ -55,7 +60,7 @@ public:
     构造预测分析表
     分析
     */
-    Exp2Grammar();
+    Exp2Grammar(string &data);
 
     /*
     清空所有集合
@@ -97,7 +102,9 @@ public:
     开始分析
     */
     bool startParse(const string &str);
+    string getOutputStr();
     /*
     析构
     */
+    ~Exp2Grammar();
 };

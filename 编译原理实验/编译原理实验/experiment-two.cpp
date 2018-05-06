@@ -2,7 +2,7 @@
 #include "Exp2ProductionRule.h"
 #include "Exp2Grammar.h"
 
-extern bool errorExit(const string &str, char x = 0, char a = 0);
+extern bool errorExit(const string &str, ostringstream & scout, char x = 0, char a = 0);
 /*
 产生式结构
 包括产生式左部，右部
@@ -25,10 +25,9 @@ Exp2ProductionRule::~Exp2ProductionRule() {
     
 }
 
-Exp2Grammar::Exp2Grammar() {
-    freopen("exp-two-data.in.txt", "r", stdin);
-    freopen("exp-two-data.out.txt", "w+", stdout);
-    cout << "--------------------------------------------------" << endl;
+Exp2Grammar::Exp2Grammar(string &data) {
+    scin = istringstream(data);
+    scout << "--------------------------------------------------" << endl;
     clear();
     readRules();
     generateFirst();
@@ -36,13 +35,14 @@ Exp2Grammar::Exp2Grammar() {
     generatePredictTable();
     printGrammar();
     int k;
-    cin >> k;
-    while (k--) {
+    scin>> k;
+    scin.get();
+    while (k > 0 && k--) {
         string tmp;
-        getline(cin, tmp);
+        getline(scin, tmp);
         startParse(tmp);
     }
-    cout << "--------------------------------------------------" << endl << endl;
+    scout << "--------------------------------------------------" << endl << endl;
 }
 void Exp2Grammar::clear() {
     startSymbol = endSymbol_char;
@@ -59,11 +59,11 @@ void Exp2Grammar::clear() {
 }
 void Exp2Grammar::readRules() {
     int t;
-    cin >> t;
+    scin>> t;
     char tmpc;
     string tmpstr;
     while (t--) {
-        cin >> tmpc >> tmpstr;
+        scin>> tmpc >> tmpstr;
         if (startSymbol == endSymbol_char)
             startSymbol = tmpc;
         rules.push_back(Exp2ProductionRule(tmpc, tmpstr));
@@ -125,7 +125,7 @@ void Exp2Grammar::generateFirst() {
                 }
             }
             else {
-                errorExit("终结符与非终结符未正确识别");
+                errorExit("终结符与非终结符未正确识别", scout);
             }
         }
         //统计first集的大小
@@ -231,92 +231,92 @@ void Exp2Grammar::generatePredictTable() {
 }
 void Exp2Grammar::printGrammar() {
     //输出得到的所有产生式
-    cout << "production rule:";
+    scout << "production rule:";
     for (auto rule : rules) {
-        cout << rule.getLeftPart() << " -> " << rule.getRightPart() << endl;
+        scout << rule.getLeftPart() << " -> " << rule.getRightPart() << endl;
     }
-    cout << endl << "NonTerminal:" << endl;
+    scout << endl << "NonTerminal:" << endl;
     //输出非终结符
     set<char>::iterator it;
     for (auto tmp : nonTerminal) {
-        cout << tmp << ' ';
+        scout << tmp << ' ';
     }
-    cout << endl << "Terminal:" << endl;
+    scout << endl << "Terminal:" << endl;
     //输出终结符
     for (auto tmp : terminal) {
-        cout << tmp << ' ';
+        scout << tmp << ' ';
     }
-    cout << endl << "First:" << endl;
+    scout << endl << "First:" << endl;
     //输出FIRST集
     for (char ch : nonTerminalVec) {
-        cout << "FIRST[" << ch << "]:";
+        scout << "FIRST[" << ch << "]:";
         for (char tmpch : firstSet[ch]) {
-            cout << ' ' << tmpch;
+            scout << ' ' << tmpch;
         }
-        cout << endl;
+        scout << endl;
     }
-    cout << endl << "Follow:" << endl;
+    scout << endl << "Follow:" << endl;
     //输出FOLLOW集
     for (char ch : nonTerminalVec) {
-        cout << "FOLLOW[" << ch << "]:";
+        scout << "FOLLOW[" << ch << "]:";
         for (char tmpch : followSet[ch]) {
-            cout << ' ' << tmpch;
+            scout << ' ' << tmpch;
         }
-        cout << endl;
+        scout << endl;
     }
-    cout << endl;
+    scout << endl;
 
     //输出预测表
     //判断是否是LL(1)文法，若非LL(1)文法则直接输出错误
     if (!isll1) {
-        cout << "This grammar isn't an LL(1) grammar!";
+        scout << "This grammar isn't an LL(1) grammar!";
     }
     else {
-        cout << "Prediction Table:" << endl << "    ";
+        scout << "Prediction Table:" << endl << "    ";
         //输出第一行
         for (char ch : terminal) {
             if (ch != epsilon_char)
-                cout << setw(20) << ch;
+                scout << setw(20) << ch;
         }
-        cout << setw(20) << endSymbol_char << endl;
+        scout << setw(20) << endSymbol_char << endl;
         //对每个非终结符
         //1.输出其字符
         //2.根据表项大小，输出每一个表项
         for (char left : nonTerminalVec) {
-            cout << left << "   ";
+            scout << left << "   ";
             for (char ch : terminal) {
                 if (ch == epsilon_char)
                     continue;
                 set<Exp2ProductionRule> tmpSet = predictTable[left][ch];
                 int tmpsz = (int)tmpSet.size();
                 if (tmpsz == 0) {
-                    cout << setw(20) << ' ';
+                    scout << setw(20) << ' ';
                 }
                 else if (tmpsz == 1) {
                     Exp2ProductionRule tmprule = *tmpSet.begin();
-                    cout << setw(17 - tmprule.getRPartLength()) << " ";
-                    cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
+                    scout << setw(17 - tmprule.getRPartLength()) << " ";
+                    scout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
                 }
                 else {
-                    cout << setw(20) << "not LL(1)";
+                    scout << setw(20) << "not LL(1)";
                     return;
                 }
             }
             set<Exp2ProductionRule> tmpSet = predictTable[left][endSymbol_char];
             int tmpsz = (int)tmpSet.size();
             if (tmpsz == 0) {
-                cout << setw(20) << ' ';
+                scout << setw(20) << ' ';
             }
             else if (tmpsz == 1) {
                 Exp2ProductionRule tmprule = *tmpSet.begin();
-                cout << setw(17 - tmprule.getRPartLength()) << ' ';
-                cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
+                scout << setw(17 - tmprule.getRPartLength()) << ' ';
+                scout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
             }
             else {
-                cout << setw(20) << "not LL(1)";
+                scout << setw(20) << "not LL(1)";
                 return;
             }
-            cout << endl;
+            scout << endl;
         }
     }
 }
@@ -333,17 +333,17 @@ bool Exp2Grammar::startParse(const string &str) {
     int stri = 0, len = (int)str.size();
 
     while (flag && stri < len) {
-        cout << endl;
+        scout << endl;
         char a = str[stri];
         for (char ch : tmpvec) {
-            cout << ch;
+            scout << ch;
         }
-        cout << setw(30 - tmpvec.size() - 1) << ' ';
-        cout << str.substr(stri);
+        scout << setw(30 - tmpvec.size() - 1) << ' ';
+        scout << str.substr(stri);
         char X = s.top();
         if (terminal.find(X) != terminal.end()) {
             if (X != a) {
-                return errorExit(parse_error_str, X, a);
+                return errorExit(parse_error_str, scout, X, a);
             }
             s.pop();
 			tmpvec.pop_back();
@@ -356,7 +356,7 @@ bool Exp2Grammar::startParse(const string &str) {
 				tmpvec.pop_back();
             }
             else {
-                return errorExit(parse_error_str, X, a);
+                return errorExit(parse_error_str, scout, X, a);
             }
         }
         else if (predictTable[X][a].size() == 1) {
@@ -370,15 +370,24 @@ bool Exp2Grammar::startParse(const string &str) {
                 s.push(tmpc);
 				tmpvec.push_back(tmpc);
             }
-            cout << setw(30 - len) << ' ';
-            cout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
+            scout << setw(40 + stri - len) << ' ';
+            scout << tmprule.getLeftPart() << "->" << tmprule.getRightPart();
         }
         else {
-            return errorExit(parse_error_str, X, a);
+            return errorExit(parse_error_str, scout, X, a);
         }
     }
-    cout << endl << parse_succeed_str << endl;
+    scout << endl << parse_succeed_str << endl;
 	return true;
+}
+
+string Exp2Grammar::getOutputStr()
+{
+    return scout.str();
+}
+
+Exp2Grammar::~Exp2Grammar()
+{
 }
 
 /*

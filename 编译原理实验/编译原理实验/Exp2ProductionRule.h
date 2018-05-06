@@ -17,7 +17,7 @@ public:
         else if (leftPart == t.leftPart) {
             if (rPartLength < t.rPartLength) return true;
             else if (rPartLength == t.rPartLength) {
-                if (rightPart == t.rightPart) return true;
+                if (rightPart < t.rightPart) return true;
                 else return false;
             }
             else return false;

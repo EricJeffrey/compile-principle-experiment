@@ -12,7 +12,6 @@ private:
     int typeCode;
 public:
     Exp1WordTuple(const string &source, int tc);
-    void setWrod(const string &source, int tc);
-    void printWord();
+    void printWord(ostringstream &scout);
     ~Exp1WordTuple();
 };

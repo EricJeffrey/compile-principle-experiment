@@ -16,7 +16,7 @@ public:
     分析词法
     输出分析后结果
     */
-    Exp1WordAnalyzer();
+    Exp1WordAnalyzer(string &data);
     /*
     预处理，删除多余的空格，换行，回车，制表符，注释
 
@@ -49,5 +49,8 @@ public:
     return: 分析后得到二元组数目
     */
     int wordParse(const string &input, vector<Exp1WordTuple> &output);
+    string getOutputStr();
     ~Exp1WordAnalyzer();
+private:
+    ostringstream scout;
 };

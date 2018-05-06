@@ -6,19 +6,48 @@
 输出错误信息以及额外信息
 实验二中用到参数x以及a
 */
-bool errorExit(const string &str, char x = 0, char a = 0) {
-    cout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl << str << endl;
+ostringstream scout;
+bool errorExit(const string &str, ostringstream & scout, char x = 0, char a = 0) {
+    scout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl << str << endl;
     if (x != 0 || a != 0)
-        cout << "x: " << x << "    a: " << a;
-    cout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl;
+        scout << "x: " << x << "    a: " << a;
+    scout << endl << "!!!!!!!!!!!!!!!!!!!!" << endl;
 	return false;
 }
 
 int main() {
+    string data = "\
+        /*存放(单词，种别码)的二元组*/\
+        struct wordTuple {\
+        char *word;\
+        int len;\
+        int typeCode;\
+        void setWrod(char *source, int sz, int tc) {\
+            len = sz + 3;\
+            word = (char *)malloc(len);\
+            memset(word, 0, sizeof(word));\
+            strncpy(word, source, sz);\
+            word[sz] = 0;\
+            typeCode = tc;\
+        }";
     //实验一
-    Exp1WordAnalyzer();
+    Exp1WordAnalyzer t(data);
+    cout << t.getOutputStr();
     //实验二
-    //Exp2Grammar();
+    data = "8\n\
+E TG\n\
+G +TG\n\
+G $\n\
+T FH\n\
+H *FH\n\
+H $\n\
+F (E)\n\
+F i\n\
+4\n\
+i+i * i*iiii*sdfadg asd i + i#\ni*i+i#\nislgais#\ni*(i + i * (i + i * i + i + i))#";
+    Exp2Grammar s(data);
+    cout << s.getOutputStr();
+    system("pause");
 }
 
 /*
