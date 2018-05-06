@@ -2,8 +2,8 @@
 #include "exp1Header.h"
 
 /*
-´Ê·¨·ÖÎö¶þÔª×é
-¸ºÔðÉèÖÃ¶þÔª×éµÄÖµÒÔ¼°¶þÔª×éµÄÊä³ö
+è¯æ³•åˆ†æžäºŒå…ƒç»„
+è´Ÿè´£è®¾ç½®äºŒå…ƒç»„çš„å€¼ä»¥åŠäºŒå…ƒç»„çš„è¾“å‡º
 */
 class Exp1WordTuple {
 private:

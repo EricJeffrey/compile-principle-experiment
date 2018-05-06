@@ -1,9 +1,9 @@
 #pragma once
 #include "commonHeader.h"
 
-//实验一
+//瀹為獙涓�
 /*
-关键字，标识符，整数，实数种别码
+鍏抽敭瀛楋紝鏍囪瘑绗︼紝鏁存暟锛屽疄鏁扮鍒爜
 #include	0	       	real	    29
 #define		1	       	+			30
 main		2	       	+=			31
@@ -34,7 +34,7 @@ default		26			{           55
 ID			27          }           56
 integer		28
 
-预定义单词种别码
+棰勫畾涔夊崟璇嶇鍒爜
 */
 
 #define includev$ 0

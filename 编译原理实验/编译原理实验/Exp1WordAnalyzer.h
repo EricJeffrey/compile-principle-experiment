@@ -3,50 +3,50 @@
 #include "Exp1WordTuple.h"
 
 /*
-´Ê·¨·ÖÎöÆ÷
-°üÀ¨
+è¯æ³•åˆ†æžå™¨
+åŒ…æ‹¬
 */
 class Exp1WordAnalyzer {
 public:
     /*
-    ¹¹Ôì·ÖÎöÆ÷
+    æž„é€ åˆ†æžå™¨
 
-    ¶ÁÈëÔ´´úÂë
-    Ô¤´¦ÀíºóÊä³ö½á¹û
-    ·ÖÎö´Ê·¨
-    Êä³ö·ÖÎöºó½á¹û
+    è¯»å…¥æºä»£ç 
+    é¢„å¤„ç†åŽè¾“å‡ºç»“æžœ
+    åˆ†æžè¯æ³•
+    è¾“å‡ºåˆ†æžåŽç»“æžœ
     */
     Exp1WordAnalyzer();
     /*
-    Ô¤´¦Àí£¬É¾³ý¶àÓàµÄ¿Õ¸ñ£¬»»ÐÐ£¬»Ø³µ£¬ÖÆ±í·û£¬×¢ÊÍ
+    é¢„å¤„ç†ï¼Œåˆ é™¤å¤šä½™çš„ç©ºæ ¼ï¼Œæ¢è¡Œï¼Œå›žè½¦ï¼Œåˆ¶è¡¨ç¬¦ï¼Œæ³¨é‡Š
 
-    spaceGot£ºÒÑ¾­Óöµ½¹ýÒ»¸ö¡°¿Õ¸ñÀà×Ö·û¡±£¬½ÓÏÂÀ´µÄËùÓÐ¡°¿Õ¸ñÀà¡±×Ö·û¶¼»á±»ºöÂÔ
-    lineCommentGot£ºÒÑ¾­Óöµ½ÁË¡°//¡±£¬½ÓÏÂÀ´µÄ×Ö·û¶¼»á±»ºöÂÔ£¬Ö±µ½Óöµ½»Ø³µ×Ö·û
-    blockCommentGot£ºÒÑ¾­Óöµ½ÁË¡°/*¡±£¬½ÓÏÂÀ´µÄ×Ö·û¶¼»á±»ºöÂÔ£¬Ö±µ½Óöµ½¡°*#(È¥µô#)/¡±
-    stringGot£ºÓ¦Óöµ½ÁË¡°"¡±£¬½ÓÏÂÀ´µÄ×Ö·û¶¼»á±»ºöÂÔ£¬Ö±µ½Óöµ½ÏÂÒ»¸ö¡°"¡±
+    spaceGotï¼šå·²ç»é‡åˆ°è¿‡ä¸€ä¸ªâ€œç©ºæ ¼ç±»å­—ç¬¦â€ï¼ŒæŽ¥ä¸‹æ¥çš„æ‰€æœ‰â€œç©ºæ ¼ç±»â€å­—ç¬¦éƒ½ä¼šè¢«å¿½ç•¥
+    lineCommentGotï¼šå·²ç»é‡åˆ°äº†â€œ//â€ï¼ŒæŽ¥ä¸‹æ¥çš„å­—ç¬¦éƒ½ä¼šè¢«å¿½ç•¥ï¼Œç›´åˆ°é‡åˆ°å›žè½¦å­—ç¬¦
+    blockCommentGotï¼šå·²ç»é‡åˆ°äº†â€œ/*â€ï¼ŒæŽ¥ä¸‹æ¥çš„å­—ç¬¦éƒ½ä¼šè¢«å¿½ç•¥ï¼Œç›´åˆ°é‡åˆ°â€œ*#(åŽ»æŽ‰#)/â€
+    stringGotï¼šåº”é‡åˆ°äº†â€œ"â€ï¼ŒæŽ¥ä¸‹æ¥çš„å­—ç¬¦éƒ½ä¼šè¢«å¿½ç•¥ï¼Œç›´åˆ°é‡åˆ°ä¸‹ä¸€ä¸ªâ€œ"â€
 
-    µ±Ç°´¦Àí×Ö·ûÎ»ÓÚ
-    1.×Ö·û´®ÖÐÊ±£¬ºöÂÔ¿Õ¸ñ£¬×¢ÊÍµÄÓ°Ïì
-    2.×¢ÊÍÖÐÊ±£¬ºöÂÔ×Ö·û´®£¬¿Õ¸ñ£¬ÁíÒ»ÖÖ×¢ÊÍµÄÓ°Ïì
+    å½“å‰å¤„ç†å­—ç¬¦ä½äºŽ
+    1.å­—ç¬¦ä¸²ä¸­æ—¶ï¼Œå¿½ç•¥ç©ºæ ¼ï¼Œæ³¨é‡Šçš„å½±å“
+    2.æ³¨é‡Šä¸­æ—¶ï¼Œå¿½ç•¥å­—ç¬¦ä¸²ï¼Œç©ºæ ¼ï¼Œå¦ä¸€ç§æ³¨é‡Šçš„å½±å“
 
-    input: ´ý´¦ÀíµÄ´®£¬´®×î´ó³¤¶ÈÓÉÈ«¾Ö±äÁ¿maxnÖ¸¶¨
-    output: ½á¹û´®´æ·ÅÎ»ÖÃ£¬´®×î´ó³¤¶ÈÓÉÈ«¾Ö±äÁ¿maxnÖ¸¶¨
+    input: å¾…å¤„ç†çš„ä¸²ï¼Œä¸²æœ€å¤§é•¿åº¦ç”±å…¨å±€å˜é‡maxnæŒ‡å®š
+    output: ç»“æžœä¸²å­˜æ”¾ä½ç½®ï¼Œä¸²æœ€å¤§é•¿åº¦ç”±å…¨å±€å˜é‡maxnæŒ‡å®š
     */
     void preprocess(const string &input, string &output);
     /*
-    ÊÇ·ñÊÇ×ÖÄ¸
+    æ˜¯å¦æ˜¯å­—æ¯
     */
     bool isLetter(char ch);
     /*
-    ÊÇ·ñÊÇÊý×Ö
+    æ˜¯å¦æ˜¯æ•°å­—
     */
     bool isDigit(char ch);
     /*
-    ´Ê·¨·ÖÎö£¬½«Ê¶±ð³öµÄµ¥´Ê·ÅÈëÒ»¸ö¶þÔª×éÊý×éÖÐ
+    è¯æ³•åˆ†æžï¼Œå°†è¯†åˆ«å‡ºçš„å•è¯æ”¾å…¥ä¸€ä¸ªäºŒå…ƒç»„æ•°ç»„ä¸­
 
-    input: ´ý´¦Àí´úÂë´®
-    output: ·ÖÎö½á¹û´æ·ÅÎ»ÖÃ
-    return: ·ÖÎöºóµÃµ½¶þÔª×éÊýÄ¿
+    input: å¾…å¤„ç†ä»£ç ä¸²
+    output: åˆ†æžç»“æžœå­˜æ”¾ä½ç½®
+    return: åˆ†æžåŽå¾—åˆ°äºŒå…ƒç»„æ•°ç›®
     */
     int wordParse(const string &input, vector<Exp1WordTuple> &output);
     ~Exp1WordAnalyzer();

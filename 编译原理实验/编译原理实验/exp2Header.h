@@ -1,9 +1,9 @@
 #pragma once
 #include "commonHeader.h"
 
-//ÊµÑé¶ş
-#define parse_succeed_str u8"Óï·¨·ÖÎö³É¹¦£¬¸ÃÊäÈë´®ÕıÈ·"
-#define parse_error_str u8"½âÎöÊ±³ö´í"    
+//å®éªŒäºŒ
+#define parse_succeed_str u8"è¯­æ³•åˆ†ææˆåŠŸï¼Œè¯¥è¾“å…¥ä¸²æ­£ç¡®"
+#define parse_error_str u8"è§£ææ—¶å‡ºé”™"    
 #define epsilon $
 #define epsilon_char '$'
 #define endSymbol #
