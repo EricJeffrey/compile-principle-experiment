@@ -3,108 +3,108 @@
 #include "Exp2ProductionRule.h"
 
 /*
-¶¨ÒåÎÄ·¨
-ÎÄ·¨ÓÉ·ÇÖÕ½á·û£¬ÖÕ½á·û£¬²úÉúÊ½×é³É
-²úÉúÊ½ÖÐµÄ¦ÅÊ¹ÓÃ$´úÌæ
+å®šä¹‰æ–‡æ³•
+æ–‡æ³•ç”±éžç»ˆç»“ç¬¦ï¼Œç»ˆç»“ç¬¦ï¼Œäº§ç”Ÿå¼ç»„æˆ
+äº§ç”Ÿå¼ä¸­çš„Îµä½¿ç”¨$ä»£æ›¿
 */
 class Exp2Grammar {
 private:
     /*
-    ¹æ¶¨²úÉúÊ½µÄ³¤¶È×î´óÖµ
+    è§„å®šäº§ç”Ÿå¼çš„é•¿åº¦æœ€å¤§å€¼
     */
     int ruleMaxLen = 50;
     /*
-    ¼ÇÂ¼¿ªÊ¼·û
+    è®°å½•å¼€å§‹ç¬¦
     */
     char startSymbol;
     /*
-    ËùÓÐ²úÉúÊ½
+    æ‰€æœ‰äº§ç”Ÿå¼
     */
     vector<Exp2ProductionRule> rules;
     /*
-    °´ÕÕ²úÉúÊ½ÊäÈëË³Ðò¼ÇÂ¼ËùÓÐ·ÇÖÕ½á·û
+    æŒ‰ç…§äº§ç”Ÿå¼è¾“å…¥é¡ºåºè®°å½•æ‰€æœ‰éžç»ˆç»“ç¬¦
     */
     vector<char> nonTerminalVec;
     /*
-    ÖÕ½á·ûÓë·ÇÖÕ½á·û¼¯ºÏ
+    ç»ˆç»“ç¬¦ä¸Žéžç»ˆç»“ç¬¦é›†åˆ
     */
     set<char> terminal, nonTerminal;
     /*
-    FIRST¼¯ºÍFOLLOW¼¯
+    FIRSTé›†å’ŒFOLLOWé›†
     */
     map<char, set<char>> firstSet, followSet;
     /*
-    Ô¤²â·ÖÎö±í
+    é¢„æµ‹åˆ†æžè¡¨
     */
     map<char, map<char, set<Exp2ProductionRule>>> predictTable;
     /*
-    ÖÕ½á·ûÓë·ÇÖÕ½á·ûµÄ¸öÊýÒÔ¼°²úÉúÊ½µÄ¸öÊý
+    ç»ˆç»“ç¬¦ä¸Žéžç»ˆç»“ç¬¦çš„ä¸ªæ•°ä»¥åŠäº§ç”Ÿå¼çš„ä¸ªæ•°
     */
     int symbolNumber, ruleNumber;
     /*
-    ÊÇ·ñÊÇLL(1)ÎÄ·¨
+    æ˜¯å¦æ˜¯LL(1)æ–‡æ³•
     */
     bool isll1 = true;
     /*
-    ÊäÈëÊä³öÁ÷
+    è¾“å…¥è¾“å‡ºæµ
     */
     istringstream scin;
     ostringstream scout;
 public:
     /*
-    ¹¹ÔìÎÄ·¨
+    æž„é€ æ–‡æ³•
 
-    ¶ÁÈ¡ÎÄ·¨
-    ¹¹ÔìFIRST¼¯
-    ¹¹ÔìFOLLOW¼¯
-    ¹¹ÔìÔ¤²â·ÖÎö±í
-    ·ÖÎö
+    è¯»å–æ–‡æ³•
+    æž„é€ FIRSTé›†
+    æž„é€ FOLLOWé›†
+    æž„é€ é¢„æµ‹åˆ†æžè¡¨
+    åˆ†æž
     */
     Exp2Grammar(string &data);
 
     /*
-    Çå¿ÕËùÓÐ¼¯ºÏ
+    æ¸…ç©ºæ‰€æœ‰é›†åˆ
     */
     void clear();
     /*
-    È·¶¨ÖÕ½á·ûÓë·ÇÖÕ½á·û
-    ½«Ã¿¸ö²úÉúÊ½µÄ×ó²¿×÷ÎªÒ»¸ö·ÇÖÕ½á·û¼ÓÈëÏàÓ¦µÄ¼¯ºÏÖÐ
-    È·¶¨·ÇÖÕ½á·ûºó£¬½«Ã¿¸ö·Ç·ÇÖÕ½á·û¼ÓÈëÖÕ½á·û¼¯ºÏÖÐ
+    ç¡®å®šç»ˆç»“ç¬¦ä¸Žéžç»ˆç»“ç¬¦
+    å°†æ¯ä¸ªäº§ç”Ÿå¼çš„å·¦éƒ¨ä½œä¸ºä¸€ä¸ªéžç»ˆç»“ç¬¦åŠ å…¥ç›¸åº”çš„é›†åˆä¸­
+    ç¡®å®šéžç»ˆç»“ç¬¦åŽï¼Œå°†æ¯ä¸ªéžéžç»ˆç»“ç¬¦åŠ å…¥ç»ˆç»“ç¬¦é›†åˆä¸­
     */
     void getTerminalAndNon();
     /*
-    ´Ó±ê×¼ÊäÈëÊä³ö¶ÁÈ¡ÎÄ·¨µÄ²úÉúÊ½
+    ä»Žæ ‡å‡†è¾“å…¥è¾“å‡ºè¯»å–æ–‡æ³•çš„äº§ç”Ÿå¼
 
-    ÊäÈëÎÄ·¨¸ñÊ½£ºleft right
-    Èô²úÉúÊ½ÖÐÓÐ¦Å£¬ÇëÊ¹ÓÃ$´úÌæ
-    Ä¬ÈÏÊäÈëµÄÎÄ·¨ÎªLL(1)ÎÄ·¨
+    è¾“å…¥æ–‡æ³•æ ¼å¼ï¼šleft right
+    è‹¥äº§ç”Ÿå¼ä¸­æœ‰Îµï¼Œè¯·ä½¿ç”¨$ä»£æ›¿
+    é»˜è®¤è¾“å…¥çš„æ–‡æ³•ä¸ºLL(1)æ–‡æ³•
     */
     void readRules();
     /*
-    Êä³öÎÄ·¨
+    è¾“å‡ºæ–‡æ³•
 
-    Êä³ö²úÉúÊ½¡¢ÖÕ½á·ûÒÔ¼°·ÇÖÕ½á·û
+    è¾“å‡ºäº§ç”Ÿå¼ã€ç»ˆç»“ç¬¦ä»¥åŠéžç»ˆç»“ç¬¦
     */
     void printGrammar();
     /*
-    ¹¹Ôìfirst¼¯
+    æž„é€ firsté›†
     */
     void generateFirst();
     /*
-    ¹¹Ôìfollow¼¯
+    æž„é€ followé›†
     */
     void generateFollow();
     /*
-    ¹¹ÔìÔ¤²â·ÖÎö±í
+    æž„é€ é¢„æµ‹åˆ†æžè¡¨
     */
     void generatePredictTable();
     /*
-    ¿ªÊ¼·ÖÎö
+    å¼€å§‹åˆ†æž
     */
     bool startParse(const string &str);
     string getOutputStr();
     /*
-    Îö¹¹
+    æžæž„
     */
     inline void printSpace(int num = 0){
         for (int i = 0; i < num && i >= 0; i++)

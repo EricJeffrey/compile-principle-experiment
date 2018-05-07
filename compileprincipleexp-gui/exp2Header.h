@@ -1,7 +1,7 @@
 #pragma once
 #include "commonHeader.h"
 
-//ÊµÑé¶þ
+//å®žéªŒäºŒ
 #define parse_succeed_str "SUCCESS"
 #define parse_error_str "ERROR"
 #define epsilon $

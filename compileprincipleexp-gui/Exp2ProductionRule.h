@@ -2,8 +2,8 @@
 #include "exp2Header.h"
 
 /*
-����ʽ�ṹ
-��������ʽ�󲿣��Ҳ�
+产生式结构
+包括产生式左部，右部
 */
 class Exp2ProductionRule {
 private:
